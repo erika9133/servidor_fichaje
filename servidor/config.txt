@@ -1,0 +1,14 @@
+//Websockect IP
+localhost
+//Websockect port
+3344
+//Postgres IP
+localhost
+//Postgres port
+5432
+//Postgres name
+
+//Postgres user
+usuario
+//Postgres pass
+usuario
