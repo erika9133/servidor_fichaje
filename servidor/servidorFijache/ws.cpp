@@ -5,7 +5,7 @@
 #include "ws.h"
 
 ///public
-WS::WS(const QString ip , const qint16 port) : m_pWebSocketServer(new QWebSocketServer(QStringLiteral("servidor_fichaje")
+WS::WS(const QString ip , const quint16 port) : m_pWebSocketServer(new QWebSocketServer(QStringLiteral("servidor_fichaje")
                                                                  ,QWebSocketServer::NonSecureMode, this))
 {
     if (m_pWebSocketServer->listen(QHostAddress(ip), port))
@@ -19,60 +19,58 @@ WS::WS(const QString ip , const qint16 port) : m_pWebSocketServer(new QWebSocket
 WS::~WS()
 {
     m_pWebSocketServer->close();
-    for(auto i : m_sockets) delete i.ptrSocket;
+    qDeleteAll(m_sockets);
+    m_sockets.clear();
+    /*for(auto i : m_sockets) delete i;
     delete &m_sockets;
-    delete m_pWebSocketServer;
+    delete m_pWebSocketServer;*/
 }//end
 
-QList<Socket> &WS::sockets()
-{
-    return m_sockets;
-}//end
 
 void WS::sentMessage(const QString &message, QWebSocket &ptrSocket)
 {
     ptrSocket.sendTextMessage(message);
 }//end
 
-bool WS::isValid(const QWebSocket &ptrSocket)
+bool WS::isValid(const QWebSocket *ptrSocket)
 {
     bool vReturn = false;
     for(auto i: m_sockets)
     {
-        if(i.ptrSocket == &ptrSocket)
+        if(i->ptrSocket == ptrSocket)
         {
-            if(i.valid) vReturn = true;
+            if(i->valid) vReturn = true;
             break;
         }//end if
     }//end for
     return vReturn;
 }//end
 
-bool WS::isAdmin(const QWebSocket &ptrSocket)
+bool WS::isAdmin(const QWebSocket *ptrSocket)
 {
     bool vReturn = false;
     for(auto i: m_sockets)
     {
-        if(i.ptrSocket == &ptrSocket)
+        if(i->ptrSocket == ptrSocket)
         {
-            if(i.admin) vReturn = true;
+            if(i->admin) vReturn = true;
             break;
         }//end if
     }//end for
     return vReturn;
 }//end
 
-Socket &WS::findSocket(QWebSocket &ptrSocket)
+Socket *WS::findSocket(QWebSocket *ptrSocket)
 {
-    Socket vReturn;
+    Socket *ptrReturn = nullptr;
     for(int i = 0 ; i < m_sockets.size() ; i++)
     {
-        if(m_sockets.at(i).ptrSocket == &ptrSocket){
+        if(m_sockets.at(i)->ptrSocket == ptrSocket){
             //at return cont data. watch out
-            vReturn = m_sockets[i];
+            ptrReturn = m_sockets[i];
         }//end if
     }//end for
-    return vReturn;
+  return ptrReturn;
 }//end
 
 ///private slots
@@ -86,7 +84,7 @@ void WS::socketConnected()
     socket.admin = false;
     socket.valid = false;
     socket.ptrSocket = ptrSocket;
-    m_sockets.push_back(socket);
+    m_sockets.push_back(&socket);
 }//end
 
 void WS::recivedMessage(QString message)
@@ -112,15 +110,22 @@ void WS::socketDisconnected()
     {
         qDebug() << "Socket disconnected:" << ptrSocket;
         ///FIX delete items in disconnect
-        //Socket const &socket = findSocket(*ptrSocket);
-        //if(m_sockets.contains(socket)) m_sockets.removeAll(socket);
-        ptrSocket->deleteLater();
+        Socket *socket = findSocket(ptrSocket);
+        //check not null returned ptr
+        if(socket){
+            //if(m_sockets.contains(*socket))
+                m_sockets.removeAll((socket));
+            ptrSocket->deleteLater();
+        }
+
+
     }//end if
 }//end
 
 
 void WS::sentMessageJson(QString message)
 {
+     message = "m";
     /*
     QJsonObject recordObject;
     QJsonObject addressObject;

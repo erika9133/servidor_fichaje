@@ -15,7 +15,7 @@ App::~App()
     delete m_bbdd;
 }//end
 
-//Herramientas
+//Herramientas≥
 QVector<QString> App::leerArchivoLineaPorLinea(const QString archivo)
 {
     QVector<QString> devolver;

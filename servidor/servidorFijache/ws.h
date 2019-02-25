@@ -24,17 +24,16 @@ class WS : public QObject
 {
     Q_OBJECT
     QWebSocketServer *m_pWebSocketServer;
-    QList<Socket> m_sockets;
+    QList<Socket*> m_sockets;
 
 public:
-    WS(const QString ip , const qint16 port);
+    WS(const QString ip , const quint16 port);
     ~WS();
-    QList<Socket> &sockets();
     void sentMessage(const QString &message, QWebSocket &ptrSocket);
     void reciveMessage(QString &message);
-    bool isValid(const QWebSocket &ptrSocket);
-    bool isAdmin(const QWebSocket &ptrSocket);
-    Socket &findSocket(QWebSocket &ptrSocket);
+    bool isValid(const QWebSocket *ptrSocket);
+    bool isAdmin(const QWebSocket *ptrSocket);
+    Socket *findSocket(QWebSocket *ptrSocket);
 
 signals:
     void emitRecivedMessage(IncomingMessage message);

@@ -4,7 +4,6 @@
 #include <QVector>
 #include "ws.h"
 #include "bbdd.h"
-#include "json.h"
 
 class App
 {
