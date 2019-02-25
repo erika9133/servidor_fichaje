@@ -11,9 +11,6 @@ class App
    WS *m_ws;
    QVector<QString> m_config;
 
-
-
-
 public:
     App();
     ~App();

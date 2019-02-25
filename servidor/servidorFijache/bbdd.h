@@ -17,6 +17,8 @@ public:
     BBDD(QString host, int port, QString database, QString user, QString pass);
     ~BBDD();
     void connect();
+    void disconnect();
+    void test();
 };
 
 #endif // BBDD_H

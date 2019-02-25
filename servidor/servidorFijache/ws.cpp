@@ -63,6 +63,7 @@ bool WS::isAdmin(const QWebSocket *ptrSocket)
 Socket *WS::findSocket(QWebSocket *ptrSocket)
 {
     Socket *ptrReturn = nullptr;
+    qDebug() <<  m_sockets.size();
     for(int i = 0 ; i < m_sockets.size() ; i++)
     {
         if(m_sockets.at(i)->ptrSocket == ptrSocket){
@@ -116,12 +117,9 @@ void WS::socketDisconnected()
             //if(m_sockets.contains(*socket))
                 m_sockets.removeAll((socket));
             ptrSocket->deleteLater();
-        }
-
-
+        }//end if
     }//end if
 }//end
-
 
 void WS::sentMessageJson(QString message)
 {

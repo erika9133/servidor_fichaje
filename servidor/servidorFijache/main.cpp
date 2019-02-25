@@ -9,4 +9,4 @@ int main(int argc, char *argv[])
     g_app = std::make_unique<App>();
     a.exec();
     return 0;
-}
+}//END

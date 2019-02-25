@@ -5,8 +5,13 @@
 App::App()
 {
    QVector<QString> m_config = leerArchivoLineaPorLinea("config.txt");
-   m_ws = new WS(m_config.at(1), m_config.at(3).toUShort());
-   m_bbdd = new BBDD(m_config.at(5), m_config.at(7).toInt(), m_config.at(9),m_config.at(11),m_config.at(13));
+   if(!m_config.empty()){
+       m_ws = new WS(m_config.at(1), m_config.at(3).toUShort());
+       m_bbdd = new BBDD(m_config.at(5), m_config.at(7).toInt(), m_config.at(9),m_config.at(11),m_config.at(13));
+   }else{
+       qDebug() << "Archivo de configuracion vacio";
+   }//end if else
+   m_bbdd->test(); //test borrar
 }//end
 
 App::~App()
@@ -18,7 +23,7 @@ App::~App()
 //Herramientas≥
 QVector<QString> App::leerArchivoLineaPorLinea(const QString archivo)
 {
-    QVector<QString> devolver;
+    QVector<QString> devolver = {};
     std::ifstream archivoTempI;
     std::string linea;
 
@@ -31,8 +36,7 @@ QVector<QString> App::leerArchivoLineaPorLinea(const QString archivo)
          QString temp = linea.c_str();
          temp = temp.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_€”+=|:;<>«»,.?/{}\'\"")));
          devolver.push_back(temp);
-         qDebug() << temp;
-       }
-    }
+       }//end while
+    }//end if
     return devolver;
 }

@@ -10,12 +10,9 @@ BBDD::BBDD(QString host, int port, QString database, QString user, QString pass)
     m_pass = pass;
     m_db = QSqlDatabase::addDatabase("QPSQL");
     qDebug() << "Postgres cargado en puerto:" << m_port;
-}
+}//end
 
-BBDD::~BBDD()
-{
-
-}
+BBDD::~BBDD(){}//end
 
 void BBDD::connect()
 {
@@ -34,7 +31,37 @@ void BBDD::connect()
         }else{
             m_bdStatus = false;
             qDebug() << "Error de conexion" << error.text();
-        }
-      // qDebug() << "" << QUuid::createUuid().toString();
+        }//end if else
+    }//end if
+}//end
+
+void BBDD::disconnect()
+{
+    if(m_bdStatus) m_bdStatus = false;
+    if(m_db.open()) m_db.close();
+}//end
+
+void BBDD::test()
+{
+    QStringList devolver;
+    connect();
+    m_db.transaction();
+    QSqlQuery query("SELECT usuarios_pass"
+           " FROM usuarios"
+           ";", m_db);
+
+    QString lastError = query.lastError().text().trimmed();
+    if (!lastError.isEmpty())
+    {
+    qDebug() << lastError;
+
+    }else{
+    while(query.next())
+    {
+        qDebug() << query.value(0).toString();
+         devolver.append(query.value(0).toString());
     }
+    }
+    m_db.commit();
+    disconnect();
 }
