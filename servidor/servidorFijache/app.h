@@ -14,7 +14,8 @@ class App
 public:
     App();
     ~App();
-    QVector<QString> leerArchivoLineaPorLinea(const QString archivo);
+
+    QVector<QString> readConfig(const QString archivo);
 
 };
 

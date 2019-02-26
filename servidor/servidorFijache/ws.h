@@ -3,15 +3,15 @@
 
 #include <QObject>
 #include <QString>
-#include "QtWebSockets/qwebsocketserver.h"
-#include "QtWebSockets/qwebsocket.h"
+#include <QtWebSockets/qwebsocketserver.h>
+#include <QtWebSockets/qwebsocket.h>
 
-class QWebSocketServer;
-class QWebSocket;
+class QWebSocketServer; ///Provides server methods
+class QWebSocket; ///Clients to connect to the server
 
 struct IncomingMessage {
-  QString message;
-  QWebSocket *pSocket;
+  const QString *ptrMessage;
+  const QWebSocket *ptrSocket;
 };
 
 struct Socket {
@@ -27,24 +27,23 @@ class WS : public QObject
     QList<Socket*> m_sockets;
 
 public:
-    WS(const QString ip , const quint16 port);
+    WS(const QHostAddress ip ,const quint16 port);
     ~WS();
-    void sentMessage(const QString &message, QWebSocket &ptrSocket);
-    void reciveMessage(QString &message);
+
+    void sentMessage(const QString *ptrMessage, QWebSocket *ptrSocket);
+    void sentMessageJson(QString message);
     bool isValid(const QWebSocket *ptrSocket);
     bool isAdmin(const QWebSocket *ptrSocket);
     Socket *findSocket(QWebSocket *ptrSocket);
 
-signals:
-    void emitRecivedMessage(IncomingMessage message);
-
 private slots:  
     void socketConnected();
     void socketDisconnected();
-    void recivedMessage(QString message);
-    void onClosed(); // mirar
+    void recivedMessage(const QString message);
+    void onClosed();
 
-    void sentMessageJson(QString message);
+signals:
+    void emitRecivedMessage(IncomingMessage const message);
 
 };
 #endif // WS_H

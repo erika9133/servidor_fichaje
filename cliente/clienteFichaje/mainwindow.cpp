@@ -1,13 +1,18 @@
 #include <iostream> //readConfig
 #include <fstream> //readConfig
-#include "app.h"
+#include <QDebug>
+#include "ui_mainwindow.h"
+#include "mainwindow.h"
 
-App::App()
+
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
 {
     ///Load config file
     QVector<QString> m_config = readConfig("config.txt");
     ///Not empty and expected items
-    if(!m_config.empty() && m_config.size() == 7){
+    if(!m_config.empty() && m_config.size() == 3){
         QHostAddress  ip = QHostAddress();
         ///cant convert ip to localhost
         if(m_config.at(0) == "localhost" || m_config.at(0) == "127.0.0.1"){
@@ -16,38 +21,28 @@ App::App()
            ip.setAddress(m_config.at(0));
         }//end if
         m_ws = new WS(ip, m_config.at(1).toUShort());
-        m_bbdd = new BBDD(m_config.at(2), m_config.at(3).toInt(), m_config.at(4), m_config.at(5), m_config.at(6));
     }else{
         qDebug() << "Error 001. Config file damage.";
     }//end if else
-    m_bbdd->test(); //test borrar
+
+    ui->setupUi(this);
 }//end
 
-App::~App()
+MainWindow::~MainWindow()
 {
-    delete m_ws;
-    delete m_bbdd;
-}//end
+    delete ui;
+}
 
-//Herramientas≥
-QVector<QString> App::readConfig(const QString file)
+QVector<QString> MainWindow::readConfig(const QString file)
 {
     ///Expected struct in config file
     /***************
-    * //Websockect IP
+    * //Websockect user
     * 0
-    * //Websockect port
+    * //Websockect pass
     * 1
-    * //Postgres IP
-    * 2
     * //Postgres port
-    * 3
-    * //Postgres name
-    * 4
-    * //Postgres user
-    * 5
-    * //Postgres pass
-    * 6
+    * 2
     ***************/
     QVector<QString> qVectorReturned = {};
     std::ifstream tempFile;

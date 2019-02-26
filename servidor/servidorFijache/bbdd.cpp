@@ -2,14 +2,14 @@
 
 BBDD::BBDD(QString host, int port, QString database, QString user, QString pass)
 {
-    m_bdStatus = false;
+    m_bdStatus = false; ///keep connected bool status
     m_host = host;
     m_port = port;
     m_database = database;
     m_user = user;
     m_pass = pass;
-    m_db = QSqlDatabase::addDatabase("QPSQL");
-    qDebug() << "Postgres cargado en puerto:" << m_port;
+    m_db = QSqlDatabase::addDatabase("QPSQL"); ///Conection and driver
+    qDebug() << "Postgres load in port:" << m_port;
 }//end
 
 BBDD::~BBDD(){}//end
@@ -23,14 +23,13 @@ void BBDD::connect()
         m_db.setDatabaseName(m_database);
         m_db.setUserName(m_user);
         m_db.setPassword(m_pass);
-        bool ok = m_db.open();
-        QSqlError error = m_db.lastError();
-        if (ok)
+
+        if (m_db.open())
         {
             m_bdStatus = true;
         }else{
             m_bdStatus = false;
-            qDebug() << "Error de conexion" << error.text();
+            qDebug() << "Error 02. Couldnt connect to DB." << m_db.lastError();
         }//end if else
     }//end if
 }//end
