@@ -24,7 +24,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="singinbtn">
+   <widget class="QPushButton" name="logginbtn">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>SingIn</string>
+     <string>Loggin</string>
     </property>
    </widget>
    <widget class="QPushButton" name="loggoutbtn">

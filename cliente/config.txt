@@ -1,0 +1,8 @@
+//user
+cliente1234
+//pass
+cliente1234
+//port
+3344
+//ip
+localhost

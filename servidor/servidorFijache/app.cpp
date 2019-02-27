@@ -30,7 +30,7 @@ App::~App()
 }//end
 
 //Herramientas≥
-QVector<QString> App::readConfig(const QString file)
+QVector<QString> App::readConfig(const QString file) const
 {
     ///Expected struct in config file
     /***************

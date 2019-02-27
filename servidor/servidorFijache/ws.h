@@ -30,11 +30,10 @@ public:
     WS(const QHostAddress ip ,const quint16 port);
     ~WS();
 
-    void sentMessage(const QString *ptrMessage, QWebSocket *ptrSocket);
-    void sentMessageJson(QString message);
-    bool isValid(const QWebSocket *ptrSocket);
-    bool isAdmin(const QWebSocket *ptrSocket);
-    Socket *findSocket(QWebSocket *ptrSocket);
+    void sentMessage(const QString *ptrMessage, QWebSocket *ptrSocket) const;
+    bool isValid(const QWebSocket *ptrSocket) const;
+    bool isAdmin(const QWebSocket *ptrSocket) const;
+    Socket *findSocket(const QWebSocket *ptrSocket);
 
 private slots:  
     void socketConnected();

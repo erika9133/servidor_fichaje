@@ -15,8 +15,7 @@ public:
     App();
     ~App();
 
-    QVector<QString> readConfig(const QString archivo);
-
+    QVector<QString> readConfig(const QString archivo) const;
 };
 
 #endif // APP_H

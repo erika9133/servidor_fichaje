@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QVector>
 #include "ws.h"
 
 namespace Ui {
@@ -12,14 +13,17 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
     WS *m_ws;
+    Ui::MainWindow *ui;
+    QVector<QString> m_config;
 
 public:
-     MainWindow(QWidget *parent = nullptr);
+     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    QVector<QString> readConfig(const QString file);
+    QVector<QString> readConfig(const QString file) const;
 
-private:
-    Ui::MainWindow *ui;
+public slots:
+    void go(); ///Wait to app exec loop and connect de signals-slots
+
 };
 
 #endif // MAINWINDOW_H

@@ -15,7 +15,7 @@ class BBDD
     QSqlDatabase m_db;
 
 public:
-    BBDD(QString host, int port, QString database, QString user, QString pass);
+    BBDD(const QString host, const int port, const QString database,const QString user, const QString pass);
     ~BBDD();
 
     void connect();

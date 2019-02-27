@@ -9,7 +9,9 @@ WS::WS(const QHostAddress ip, const quint16 port) : m_pWebSocketServer(new QWebS
 {
     if(m_pWebSocketServer->listen(ip, port))
     {
-        qDebug() << "WS start. Listening in: " + ip.toString() + ":" + QString::number(port);
+        QString debug = ip.toString();
+        if(ip.toString() == "127.0.0.1") debug = "localhost";
+        qDebug() << "WS start. Listening in: " + debug+ ":" + QString::number(port);
         ///Create signal-slot for main websocket server
         connect(m_pWebSocketServer, &QWebSocketServer::newConnection, this, &WS::socketConnected);
         connect(m_pWebSocketServer, &QWebSocketServer::closed, this, &WS::onClosed);
@@ -27,35 +29,12 @@ WS::~WS()
     m_sockets.clear();
 }//end
 
-void WS::sentMessage(const QString *message, QWebSocket *ptrSocket)
+void WS::sentMessage(const QString *message, QWebSocket *ptrSocket) const
 {
     ptrSocket->sendTextMessage(*message);
 }//end
 
-void WS::sentMessageJson(QString message)
-{
-     message = "m";
-    /*
-    QJsonObject recordObject;
-    QJsonObject addressObject;
-    addressObject.insert("Street", "Downing Street 10");
-    addressObject.insert("City", "London");
-    addressObject.insert("Country", "Great Britain");
-    recordObject.insert("Address", addressObject);
-
-    QJsonArray phoneNumbersArray;
-    phoneNumbersArray.push_back("+44 1234567");
-    phoneNumbersArray.push_back("+44 2345678");
-    recordObject.insert("Phone Numbers", phoneNumbersArray);
-
-    QJsonArray recordsArray;
-    recordsArray.push_back(recordObject);
-    QJsonDocument doc(recordsArray);
-    qDebug() << doc.toJson();
-    */
-}//end
-
-bool WS::isValid(const QWebSocket *ptrSocket)
+bool WS::isValid(const QWebSocket *ptrSocket) const
 {
     bool boolReturned = false;
     for(auto i: m_sockets)
@@ -69,7 +48,7 @@ bool WS::isValid(const QWebSocket *ptrSocket)
     return boolReturned;
 }//end
 
-bool WS::isAdmin(const QWebSocket *ptrSocket)
+bool WS::isAdmin(const QWebSocket *ptrSocket) const
 {
     bool boolReturned = false;
     for(auto i: m_sockets)
@@ -83,7 +62,7 @@ bool WS::isAdmin(const QWebSocket *ptrSocket)
     return boolReturned;
 }//end
 
-Socket *WS::findSocket(QWebSocket *ptrSocket)
+Socket *WS::findSocket(const QWebSocket *ptrSocket)
 {
     ///Return something if couldnt be found
     Socket *ptrReturned = nullptr;
@@ -117,7 +96,7 @@ void WS::socketConnected()
 
 void WS::recivedMessage(const QString message)
 {
-    QWebSocket *ptrSocket= qobject_cast<QWebSocket *>(sender());
+    QWebSocket *ptrSocket = qobject_cast<QWebSocket *>(sender());
     ///keep ptr socket and ptr message in one same struct
     IncomingMessage incomingMessage;
     incomingMessage.ptrSocket = ptrSocket;

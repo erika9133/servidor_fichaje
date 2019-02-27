@@ -3,6 +3,7 @@
 
 #include <QtCore/QObject>
 #include <QtWebSockets/QWebSocket>
+#include <QUrl>
 #include "ui_mainwindow.h"
 
 class QWebSocket;
@@ -18,17 +19,16 @@ class WS : public QObject
 public:
     explicit WS(const QHostAddress ip, const quint16 port);
     ~WS();
-    void sendMessage(QString message);
-
+    void sendMessage(const QString message) const;
 
 public slots:
-    void go();
+    void go(); ///Wait to app exec loop and connect de signals-slots
     void connected();
     void disconnected();
-    void reciveMessage(QString message);
+    void reciveMessage(const QString message) const;
 
 signals:
-    void procesarMensaje(QString);
+    void procesarMensaje(const QString) const;
 
 };
 

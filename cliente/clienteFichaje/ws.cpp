@@ -7,55 +7,52 @@ QT_USE_NAMESPACE
 
 WS::WS(const QHostAddress ip, const quint16 port)
 {
-     QTimer::singleShot(0,this,SLOT(go()));
-     //m_url = QUrl(QStringLiteral("ws://"+ip.toString()+":"+QString::number(port)));
+    ///Wait to main application exec loop
+   // QTimer::singleShot(0,this,SLOT(go()));
+    ///Add to url the rigth address
+    m_url.setScheme("ws");
+    m_url.setHost(ip.toString());
+    m_url.setPort(port);
 
-     m_url.setPath("ws");
-     m_url.setHost(ip.toString());
-     m_url.setPort(port);
-     qDebug() << m_url.toString();
-}
-
-WS::~WS()
-{
- if (m_connected) disconnect();
- delete m_webSocket;
-}
-
-void WS::go()
-{
     m_webSocket = new QWebSocket();
     connect(m_webSocket, SIGNAL(connected()),this,SLOT(connected()));
     connect(m_webSocket, SIGNAL(disconnected()),this,SLOT(disconnected()));
     connect(m_webSocket, SIGNAL(textMessageReceived(QString)),this,SLOT(reciveMessage(QString)));
     m_webSocket->open(m_url);
-}
+    sendMessage("a");
+}//end
+
+WS::~WS()
+{
+ if (m_connected) disconnect();
+ delete m_webSocket;
+}//end
+
+void WS::sendMessage(const QString message) const
+{
+    if (m_connected) m_webSocket->sendTextMessage(message);
+}//end
+
+/***public slots***/
+void WS::go()
+{
+
+}//end
 
 void WS::connected()
 {
     m_connected = true;
-    qDebug() << "WebSocket connected";
-    qDebug() << m_connected;
-    //sendMessage("a");
-}
+    qDebug() << "WebSocket connected in path: " + m_url.toString();
+}//end
 
 void WS::disconnected()
 {
     m_connected = false;
     qDebug() << "WebSocket disconnected";
     m_webSocket->close();
-}
+}//end
 
-void WS::sendMessage(QString message)
-{
-    if (m_connected){
-        //qDebug() << "Message enviado:" << message;
-        m_webSocket->sendTextMessage(message);
-    }
-}
-
-void WS::reciveMessage(QString message)
+void WS::reciveMessage(const QString message) const
 {
     emit procesarMensaje(message);
-   // qDebug() << "Message recibido:" << message;
-}
+}//end

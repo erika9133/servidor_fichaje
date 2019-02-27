@@ -1,6 +1,6 @@
 #include "bbdd.h"
 
-BBDD::BBDD(QString host, int port, QString database, QString user, QString pass)
+BBDD::BBDD(const QString host,const int port,const QString database,const QString user,const QString pass)
 {
     m_bdStatus = false; ///keep connected bool status
     m_host = host;
@@ -9,7 +9,7 @@ BBDD::BBDD(QString host, int port, QString database, QString user, QString pass)
     m_user = user;
     m_pass = pass;
     m_db = QSqlDatabase::addDatabase("QPSQL"); ///Conection and driver
-    qDebug() << "Postgres load in port:" << m_port;
+    qDebug() << "BBDD start. Postgres load in: " + host + ":" + QString::number(port);
 }//end
 
 BBDD::~BBDD(){}//end
