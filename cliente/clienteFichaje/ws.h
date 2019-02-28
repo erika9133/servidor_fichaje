@@ -29,6 +29,7 @@ public slots:
 
 signals:
     void procesarMensaje(const QString) const;
+    void loginReady() const; ///Wait to be connected before send login info to server
 
 };
 

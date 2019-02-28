@@ -22,7 +22,7 @@ public:
     QVector<QString> readConfig(const QString file) const;
 
 public slots:
-    void go(); ///Wait to app exec loop and connect de signals-slots
+    void doLogin(); ///Wait for websocket to be susscessfully connected
 
 };
 

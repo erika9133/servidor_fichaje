@@ -34,10 +34,10 @@
      </rect>
     </property>
     <property name="text">
-     <string>Loggin</string>
+     <string>Login</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="loggoutbtn">
+   <widget class="QPushButton" name="logoutbtn">
     <property name="geometry">
      <rect>
       <x>160</x>
@@ -47,7 +47,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Loggout</string>
+     <string>Logout</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit">

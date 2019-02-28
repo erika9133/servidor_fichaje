@@ -1,6 +1,7 @@
 #include <iostream> //readConfig
 #include <fstream> //readConfig
 #include "app.h"
+#include "json.h"
 
 App::App()
 {
@@ -17,6 +18,8 @@ App::App()
         }//end if
         m_ws = new WS(ip, m_config.at(1).toUShort());
         m_bbdd = new BBDD(m_config.at(2), m_config.at(3).toInt(), m_config.at(4), m_config.at(5), m_config.at(6));
+        ///When websocket recive a message, is sent here
+        connect(m_ws, SIGNAL(emitRecivedMessage(IncomingMessage*)), this, SLOT(processIncomingMessage(IncomingMessage*)));
     }else{
         qDebug() << "Error 001. Config file damage.";
     }//end if else
@@ -29,7 +32,17 @@ App::~App()
     delete m_bbdd;
 }//end
 
-//Herramientas≥
+
+//Main method to check messages and response or do things
+void App::processIncomingMessage(IncomingMessage *m)
+{
+    qDebug() << "entra en processincoming con " << m->ptrMessage->toStdString().c_str();
+    JSON::unParseMainLogin(m->ptrMessage);
+}
+
+
+
+//Tools
 QVector<QString> App::readConfig(const QString file) const
 {
     ///Expected struct in config file

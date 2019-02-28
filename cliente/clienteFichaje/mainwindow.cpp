@@ -1,37 +1,36 @@
 #include <iostream> //readConfig
 #include <fstream> //readConfig
 #include <QDebug>
-#include <QTimer>
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include "json.h"
 
+// Problema con el qtimer. se lanza antes el mensaje de login que el connect del ws de conexion. movido go a main windows de ws
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    ///Wait to main application exec loop
-    QTimer::singleShot(0,this,SLOT(go()));
     ///Load config file
     m_config = readConfig("/Users/erika/Desktop/build-clienteFichaje/config.txt");
     ///Not empty and expected items
     if(!m_config.empty() && m_config.size() == 4){
-        QHostAddress  ip = QHostAddress();
-        ///cant convert ip to localhost
+        QHostAddress ip = QHostAddress();
+        ///cant convert ip to localhost string
         if(m_config.at(3) == "localhost" || m_config.at(3) == "127.0.0.1"){
             ip.setAddress(QHostAddress::LocalHost);
         }else{
             ip.setAddress(m_config.at(3));
         }//end if
         m_ws = new WS(ip, m_config.at(2).toUShort());
+        connect(m_ws, SIGNAL(loginReady()),this,SLOT(doLogin()));
     }else{
         qDebug() << "Error 001. Config file damage.";
     }//end if else
-     ui->setupUi(this);
-
+    ui->setupUi(this);
 }//end
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete m_ws;
 }//end
 
 QVector<QString> MainWindow::readConfig(const QString file) const
@@ -70,10 +69,8 @@ QVector<QString> MainWindow::readConfig(const QString file) const
 }//end
 
 /***public slots***/
-void MainWindow::go()
+void MainWindow::doLogin()
 {
-    ///Send login data to server
-    m_ws->sendMessage("a");
-    m_ws->sendMessage(JSON::ParseMainLoggin(m_config.at(0),m_config.at(1)));
-    qDebug() << JSON::ParseMainLoggin(m_config.at(0),m_config.at(1));
+   ///When websocket is susscessfully connected, can be send it login info
+    m_ws->sendMessage(JSON::ParseMainLogin(m_config.at(0),m_config.at(1)));
 }

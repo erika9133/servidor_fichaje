@@ -9,7 +9,7 @@ class JSON
 {
 public:
     explicit JSON();
-    static QString ParseMainLoggin(const QString user, const QString pass);
+    static QString ParseMainLogin(const QString user, const QString pass);
 };
 
 #endif // JSON_H

@@ -38,11 +38,11 @@ public:
 private slots:  
     void socketConnected();
     void socketDisconnected();
-    void recivedMessage(const QString message);
+    void recivedMessage(QString message);
     void onClosed();
 
 signals:
-    void emitRecivedMessage(IncomingMessage const message);
+    void emitRecivedMessage(IncomingMessage *message);
 
 };
 #endif // WS_H

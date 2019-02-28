@@ -1,4 +1,3 @@
-#include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -8,12 +7,12 @@
 
 JSON::JSON(){}//end
 
-QString JSON::ParseMainLoggin(const QString user, const QString pass)
+QString JSON::ParseMainLogin(const QString user, const QString pass) //pasar puntero
 {
     QString qStringReturned = "";
     ///Json Struct
     /*{
-     *      "mainloggin":
+     *      "mainlogin":
      *      {
      *          "pass":"xxxxxxx",
      *          "user":"xxxxxxx"
@@ -21,15 +20,15 @@ QString JSON::ParseMainLoggin(const QString user, const QString pass)
      * }
      */
     ///Create login object. Contains pass and user
-    QJsonObject loggin;
-    loggin["user"] = user;
-    loggin["pass"] = pass;
+    QJsonObject login;
+    login["user"] = user;
+    login["pass"] = pass;
     ///Value contains login object and is contained by messaje
-    QJsonValue value(loggin);
+    QJsonValue value(login);
     ///Message contains type of json as well
     QJsonObject message;
     ///Message is the "root" item in the document.
-    message.insert("mainloggin", value);
+    message.insert("mainlogin", value);
     QJsonDocument doc;
     doc.setObject(message);
     ///Return QString message

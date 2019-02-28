@@ -22,8 +22,7 @@ WS::WS(const QHostAddress ip, const quint16 port) : m_pWebSocketServer(new QWebS
 
 WS::~WS()
 {
-   //if(m_pWebSocketServer->isListening()) m_pWebSocketServer->close();
-     m_pWebSocketServer->close();
+    m_pWebSocketServer->close();
     ///Delete the ptr qlist items
     qDeleteAll(m_sockets);
     m_sockets.clear();
@@ -94,15 +93,19 @@ void WS::socketConnected()
     m_sockets.push_back(&socket);
 }//end
 
-void WS::recivedMessage(const QString message)
+void WS::recivedMessage(QString message)
 {
     QWebSocket *ptrSocket = qobject_cast<QWebSocket *>(sender());
     ///keep ptr socket and ptr message in one same struct
-    IncomingMessage incomingMessage;
-    incomingMessage.ptrSocket = ptrSocket;
-    incomingMessage.ptrMessage = &message;
+    IncomingMessage m;
+    m.ptrSocket = ptrSocket;
+
+    //TODO check menssage is valid, not return trash
+    ///Remove odd char
+    message = message.remove(QRegExp(QString::fromUtf8("[]-`~!@#$%^&*()_€”+=|;<>«».?/\'\"")));
+    m.ptrMessage = &message;
     ///emit struct to main application to be process
-    emit emitRecivedMessage(incomingMessage);
+    emit emitRecivedMessage(&m);
     qDebug() << "From: " << ptrSocket << " Message recived: " << message;
 }//end
 
