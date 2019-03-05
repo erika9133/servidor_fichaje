@@ -105,7 +105,7 @@ void WS::recivedMessage(QString message)
     message = message.remove(QRegExp(QString::fromUtf8("[]-`~!@#$%^&*()_€”+=|;<>«».?/\'\"")));
     m.ptrMessage = &message;
     ///emit struct to main application to be process
-    emit emitRecivedMessage(&m);
+    emit emitRecivedMessage(m);
     qDebug() << "From: " << ptrSocket << " Message recived: " << message;
 }//end
 

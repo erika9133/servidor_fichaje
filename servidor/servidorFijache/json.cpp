@@ -1,6 +1,6 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
-
+#include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QVariantMap>
@@ -12,14 +12,30 @@ JSON::JSON()
 
 }
 
-QJsonObject isValid(const QString *message)
+QString JSON::findTypeMessage(const QString *message)
 {
+    QString stringReturned = "";
 
-}
+    QByteArray byteArray = message->toUtf8();
+
+    if(!byteArray.isEmpty()) ///Check QByteArray
+    {
+        QJsonParseError *error = nullptr;
+        ///Open a json document with the qbytearray
+        QJsonDocument doc = QJsonDocument::fromJson(byteArray, error);
+        //if (doc.isObject() && !error->NoError){ ///Check document
+        ///Get the root object
+        QJsonObject rootObj = doc.object();
+        ///Find the first key element. (the info element)
+        stringReturned = rootObj.keys().at(0);
+        }
+    return stringReturned;
+}//end
 
 
 QVector<QString> JSON::unParseMainLogin(const QString *message)
 {
+    QVector<QString> vectorReturned;
     ///Json Struct
     /*
     * {
@@ -33,44 +49,32 @@ QVector<QString> JSON::unParseMainLogin(const QString *message)
     ///Firt it nedeed to be qByteArray
     QByteArray byteArray = message->toUtf8();
 
-        QJsonParseError jerror;
-
+    if(!byteArray.isEmpty()) ///Check QByteArray
+    {
+        QJsonParseError *error = nullptr;
         ///Open a json document with the qbytearray
-        QJsonDocument doc = QJsonDocument::fromJson(byteArray);
-
-        ///Get the root object
-        QJsonObject rootObj = doc.object();
-        ///QVarianMap is QMap<String>,<QVariant>. Get the root map
-        QVariantMap rootMap = rootObj.toVariantMap();
-        ///Find the inner map inside mainlogin element
-        QVariantMap map = rootMap["mainlogin"].toMap();
-        ///Get two elements that we need it
-        QString pass = map["pass"].toString();
-        QString user = map["user"].toString();
-        qDebug() << user << pass;
-
-        QVector<QString> temp;
-        return temp;
-    }
-
-    /*2
-
-    QString qStringReturned = "";
-
-    ///Create login object. Contains pass and user
-    QJsonObject login;
-    login["user"] = user;
-    login["pass"] = pass;
-    ///Value contains login object and is contained by messaje
-    QJsonValue value(login);
-    ///Message contains type of json as well
-    QJsonObject message;
-    ///Message is the "root" item in the document.
-    message.insert("mainlogin", value);
-    QJsonDocument doc;
-    doc.setObject(message);
-    ///Return QString message
-    qStringReturned = doc.toJson(QJsonDocument::Compact);
-    return  qStringReturned;
-    */
+        QJsonDocument doc = QJsonDocument::fromJson(byteArray, error);
+        if(doc.isObject() && !error->NoError){ ///Check document
+            ///Get the root object
+            QJsonObject rootObj = doc.object();
+            ///QVarianMap is QMap<String>,<QVariant>. Get the root map
+            QVariantMap rootMap = rootObj.toVariantMap();
+            ///Find the inner map inside mainlogin element
+            QVariantMap map = rootMap["mainlogin"].toMap();
+            if(!map.empty())
+            {
+                ///Get two elements that we need it
+                QString pass = map["pass"].toString();
+                QString user = map["user"].toString();
+                if(!user.isEmpty() && !pass.isEmpty())
+                {
+                    vectorReturned.push_back(user);
+                    vectorReturned.push_back(pass);
+                }//end if
+            }//end if map
+        }else{
+            qDebug() << error->error;
+        }//end if eslse document
+    }//end if bytearray
+    return vectorReturned;
 }

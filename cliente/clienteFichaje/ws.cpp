@@ -47,7 +47,6 @@ void WS::connected()
 void WS::disconnected()
 {
     m_webSocket->close();
-    m_webSocket->disconnected();
     m_connected = false;
     qDebug() << "WebSocket disconnected";
 

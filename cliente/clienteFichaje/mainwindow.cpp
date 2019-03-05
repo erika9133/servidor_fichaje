@@ -5,7 +5,6 @@
 #include "mainwindow.h"
 #include "json.h"
 
-// Problema con el qtimer. se lanza antes el mensaje de login que el connect del ws de conexion. movido go a main windows de ws
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ///Load config file

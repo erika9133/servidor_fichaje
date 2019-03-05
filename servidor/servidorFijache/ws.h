@@ -42,7 +42,7 @@ private slots:
     void onClosed();
 
 signals:
-    void emitRecivedMessage(IncomingMessage *message);
+    void emitRecivedMessage(IncomingMessage message);
 
 };
 #endif // WS_H

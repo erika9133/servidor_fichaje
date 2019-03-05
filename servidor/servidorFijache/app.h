@@ -20,7 +20,7 @@ public:
     QVector<QString> readConfig(const QString archivo) const;
 
 public slots:
-    void processIncomingMessage(IncomingMessage *m);
+    void processIncomingMessage(IncomingMessage m);
 };
 
 #endif // APP_H
