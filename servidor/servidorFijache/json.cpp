@@ -66,6 +66,8 @@ QVector<QString> JSON::unParseMainLogin(const QString *message)
                 ///Get two elements that we need it
                 QString pass = map["pass"].toString();
                 QString user = map["user"].toString();
+                pass = cleanJson(pass);
+                user = cleanJson(user);
                 if(!user.isEmpty() && !pass.isEmpty())
                 {
                     vectorReturned.push_back(user);
@@ -77,4 +79,12 @@ QVector<QString> JSON::unParseMainLogin(const QString *message)
         }//end if eslse document
     }//end if bytearray
     return vectorReturned;
+}
+
+QString JSON::cleanJson(QString toClean)
+{
+    QString stringReturned = "";
+    ///Remove odd char
+    stringReturned = toClean.remove(QRegExp(QString::fromUtf8("[-`~!@#$%^&*()_€”+=|:;<>«»,.?/{}\'\"")));
+    return stringReturned;
 }

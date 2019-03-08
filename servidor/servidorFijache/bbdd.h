@@ -21,6 +21,8 @@ public:
     void connect();
     void disconnect();
     void test();
+    QVector<QString> select(QVector<QString> values, QString select);
+    QSqlQuery prepareBindValue(QVector<QString> values, QString query);
 };
 
 #endif // BBDD_H

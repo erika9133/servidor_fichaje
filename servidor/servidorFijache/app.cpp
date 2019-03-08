@@ -32,16 +32,38 @@ App::~App()
     delete m_bbdd;
 }//end
 
+/***private***/
+bool App::checkLogin(QString user, QString pass)
+{
+    bool boolReturned = false;
+
+   // QString select = "SELECT usuarios_pass"
+     //               " FROM usuarios"
+       //             ";";
+            QString select= "SELECT clientes_pass FROM clientes WHERE clientes_user LIKE :user";
+    ///BBDD select is prepared to accept several values cause we use a vector.
+    QVector<QString> vectorUser {user};
+    QVector<QString> result = m_bbdd->select(vectorUser,select);
+    if(!result.isEmpty() && result.at(0) == pass) boolReturned = true;
+    return boolReturned;
+}//end
+
+
 /***public slots***/
 //Main method to check messages and response or do things
 void App::processIncomingMessage(IncomingMessage m)
 {
     QString jType = JSON::findTypeMessage(m.ptrMessage);
     if(jType == "mainlogin"){
-        QVector<QString> vectoLogin = JSON::unParseMainLogin(m.ptrMessage);
-
+        //m_bbdd->test();
+       QVector<QString> vectoLogin = JSON::unParseMainLogin(m.ptrMessage);
+        qDebug() << checkLogin(vectoLogin.at(0),vectoLogin.at(1));
+    }else{
+        //not working
     }
 }//end
+
+
 
 //Tools
 QVector<QString> App::readConfig(const QString file) const

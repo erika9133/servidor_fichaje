@@ -9,10 +9,11 @@ BBDD::BBDD(const QString host,const int port,const QString database,const QStrin
     m_user = user;
     m_pass = pass;
     m_db = QSqlDatabase::addDatabase("QPSQL"); ///Conection and driver
-    qDebug() << "BBDD start. Postgres load in: " + host + ":" + QString::number(port);
+    qDebug() << "BBDD start. Postgres load in: " + m_host + ":" + QString::number(m_port);
+    connect();
 }//end
 
-BBDD::~BBDD(){}//end
+BBDD::~BBDD(){ disconnect();}//end
 
 void BBDD::connect()
 {
@@ -27,6 +28,7 @@ void BBDD::connect()
         if (m_db.open())
         {
             m_bdStatus = true;
+             qDebug() << "BBDD Connection open";
         }else{
             m_bdStatus = false;
             qDebug() << "Error 02. Couldnt connect to DB." << m_db.lastError();
@@ -38,8 +40,56 @@ void BBDD::disconnect()
 {
     if(m_bdStatus) m_bdStatus = false;
     if(m_db.open()) m_db.close();
+    qDebug() << "BBDD Connection close";
 }//end
 
+///Send a generic query to db
+QVector<QString> BBDD::select(QVector<QString> values, QString select)
+{
+    QVector<QString> vectorReturned;
+   // QSqlQuery querySQL;
+    ///Only exec if everything is right
+    m_db.transaction();
+    QSqlQuery querySQL = prepareBindValue(values,select);
+    //querySQL.prepare(select);
+    //querySQL.bindValue(":user",QVariant(values.at(0)));
+    /*
+    qDebug() << "Antes de exe next";
+    qDebug() << "next es "<< querySQL.next();
+    qDebug() << "valid es "<< querySQL.isValid();
+    qDebug() << "active es "<< querySQL.isActive();
+    qDebug() << "last es "<< querySQL.last();
+    qDebug() << "select es " << querySQL.isSelect();
+    qDebug() << "lastquerry es " << querySQL.lastQuery();
+    */
+    querySQL.exec();
+    while(querySQL.next())
+    {
+        qDebug() <<"CONTENIDO es: " <<  querySQL.value(0).toString();
+        //vectorReturned.push_back(querySQL.value(0).toString());
+    }//end while
+
+
+    ///Only exec if everything is right
+    m_db.commit();
+    return vectorReturned;
+    //WIP================
+}//end
+
+QSqlQuery BBDD::prepareBindValue(QVector<QString> values, QString query)
+{
+    ///Open database in constructor
+    // //TODO pasar mapa, const y alias
+    QSqlQuery queryReturned;
+    queryReturned.prepare(query);
+    int counter = 0;
+    for(QString value : values)
+    {
+        queryReturned.bindValue(":user", value);
+        counter++;
+    }//end for each
+    return queryReturned;
+}//end
 void BBDD::test()
 {
     QStringList devolver;
@@ -64,3 +114,4 @@ void BBDD::test()
     m_db.commit();
     disconnect();
 }
+

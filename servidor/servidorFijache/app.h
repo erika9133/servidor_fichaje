@@ -12,6 +12,7 @@ class App : public QObject
    BBDD *m_bbdd;
    WS *m_ws;
    QVector<QString> m_config;
+   bool checkLogin(QString user, QString pass);
 
 public:
     App();

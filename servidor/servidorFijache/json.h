@@ -16,6 +16,7 @@ public:
     ~JSON();
     static QString findTypeMessage(const QString *message);
     static QVector<QString> unParseMainLogin(const QString *message);
+    static QString cleanJson(QString toClean);
 };
 
 #endif // JSON_H
