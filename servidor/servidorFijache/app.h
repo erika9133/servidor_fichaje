@@ -11,8 +11,10 @@ class App : public QObject
    Q_OBJECT
    BBDD *m_bbdd;
    WS *m_ws;
-   QVector<QString> m_config;
-   bool checkLogin(QString user, QString pass);
+   QVector<QString> m_config; //Module config data
+   bool checkLogin(const QString &user,const QString &pass); //Check client data login (Several clients, one client is used for several users (peaple))
+   bool checkUser(const QString &user,const QString &pass); //Check user data login
+   bool checkRightData(const QString &type,const QString &date); //Check data type and date is right
 
 public:
     App();

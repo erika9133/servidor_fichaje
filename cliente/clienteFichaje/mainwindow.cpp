@@ -24,6 +24,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         qDebug() << "Error 001. Config file damage.";
     }//end if else
     ui->setupUi(this);
+   // ui->logginbtn->setEnabled(false);
+    //ui->logoutbtn->setEnabled(false);
+    //Debug****
+    ui->ean13->setText("1234567890123");
+    ui->pass->setText("1234");
 }//end
 
 MainWindow::~MainWindow()
@@ -72,4 +77,9 @@ void MainWindow::doLogin()
 {
    ///When websocket is susscessfully connected, can be send it login info
     m_ws->sendMessage(JSON::ParseMainLogin(m_config.at(0),m_config.at(1)));
+}
+
+void MainWindow::on_logginbtn_clicked()
+{
+    m_ws->sendMessage(JSON::ParseLogin(ui->ean13->text(),ui->pass->text(),"in"));
 }

@@ -24,6 +24,8 @@ public:
 public slots:
     void doLogin(); ///Wait for websocket to be susscessfully connected
 
+private slots:
+    void on_logginbtn_clicked();
 };
 
 #endif // MAINWINDOW_H

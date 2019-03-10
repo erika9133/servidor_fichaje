@@ -79,7 +79,63 @@ QVector<QString> JSON::unParseMainLogin(const QString *message)
         }//end if eslse document
     }//end if bytearray
     return vectorReturned;
-}
+}//end
+
+QVector<QString> JSON::unParseLogin(const QString *message)
+{
+    QVector<QString> vectorReturned;
+    ///Json Struct
+    /*{
+     *      "login":
+     *      {
+     *          "pass":"xxxxxxx",
+     *          "user":"xxxxxxx",
+     *          "type": in/out",
+     *          "date: dd/mm/yyyy"
+     *      }
+     * }
+     */
+    ///Firt it nedeed to be qByteArray
+    QByteArray byteArray = message->toUtf8();
+
+    if(!byteArray.isEmpty()) ///Check QByteArray
+    {
+        QJsonParseError *error = nullptr;
+        ///Open a json document with the qbytearray
+        QJsonDocument doc = QJsonDocument::fromJson(byteArray, error);
+        if(doc.isObject() && !error->NoError){ ///Check document
+            ///Get the root object
+            QJsonObject rootObj = doc.object();
+            ///QVarianMap is QMap<String>,<QVariant>. Get the root map
+            QVariantMap rootMap = rootObj.toVariantMap();
+            ///Find the inner map inside mainlogin element
+            QVariantMap map = rootMap["login"].toMap();
+            if(!map.empty())
+            {
+                ///Get two elements that we need it
+                QString pass = map["pass"].toString();
+                QString user = map["user"].toString();
+                QString type = map["type"].toString();
+                QString date = map["date"].toString();
+                pass = cleanJson(pass);
+                user = cleanJson(user);
+                type = cleanJson(type);
+
+                //date = cleanJson(date);
+                if(!user.isEmpty() && !pass.isEmpty())
+                {
+                    vectorReturned.push_back(user);
+                    vectorReturned.push_back(pass);
+                    vectorReturned.push_back(type);
+                    vectorReturned.push_back(date);
+                }//end if
+            }//end if map
+        }else{
+            qDebug() << error->error;
+        }//end if eslse document
+    }//end if bytearray
+    return vectorReturned;
+}//end
 
 QString JSON::cleanJson(QString toClean)
 {

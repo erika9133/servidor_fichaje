@@ -69,9 +69,10 @@ Socket *WS::findSocket(const QWebSocket *ptrSocket)
     {
         ///if can find one item (socket) in the list with the same pointer-socket, return the pointer-item
         ///therefore it can be called and edit from outside
-        if(m_sockets.at(i)->ptrSocket == ptrSocket){
+        if(m_sockets.at(i)->ptrSocket == ptrSocket){ //WIP error
             ptrReturned = m_sockets[i];
-        }//end if
+        }else{
+        }
     }//end for
   return ptrReturned;
 }//end

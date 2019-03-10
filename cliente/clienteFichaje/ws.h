@@ -4,7 +4,7 @@
 #include <QtCore/QObject>
 #include <QtWebSockets/QWebSocket>
 #include <QUrl>
-#include "ui_mainwindow.h"
+
 
 class QWebSocket;
 

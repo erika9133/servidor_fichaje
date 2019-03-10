@@ -2,12 +2,13 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonValue>
+#include <QDateTime>
 #include <QDebug>
 #include "json.h"
 
 JSON::JSON(){}//end
 
-QString JSON::ParseMainLogin(const QString user, const QString pass) //pasar puntero
+QString JSON::ParseMainLogin(const QString &user, const QString &pass)
 {
     QString qStringReturned = "";
     ///Json Struct
@@ -32,6 +33,38 @@ QString JSON::ParseMainLogin(const QString user, const QString pass) //pasar pun
     QJsonDocument doc;
     doc.setObject(message);
     ///Return QString message
+    qStringReturned = doc.toJson(QJsonDocument::Compact);
+    return  qStringReturned;
+}//end
+
+QString JSON::ParseLogin(const QString &user, const QString &pass, const QString &type)
+{
+    QString qStringReturned = "";
+    ///Json Struct
+    /*{
+     *      "login":
+     *      {
+     *          "pass":"xxxxxxx",
+     *          "user":"xxxxxxx",
+     *          "type": in/out",
+     *          "date: dd/mm/yyyy"
+     *      }
+     * }
+     */
+    QJsonObject login;
+    QDateTime date = QDateTime::currentDateTime();
+    login["user"] = user;
+    login["pass"] = pass;
+    login["type"] = type;
+    login["date"] = date.toString();
+
+    QJsonValue value(login);
+    QJsonObject message;
+
+    message.insert("mainlogin", value);
+    QJsonDocument doc;
+
+    doc.setObject(message);
     qStringReturned = doc.toJson(QJsonDocument::Compact);
     return  qStringReturned;
 }//end

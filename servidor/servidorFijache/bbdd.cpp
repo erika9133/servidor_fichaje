@@ -44,15 +44,11 @@ void BBDD::disconnect()
 }//end
 
 ///Send a generic query to db
-QVector<QString> BBDD::select(QVector<QString> values, QString select)
-{
+QVector<QString> BBDD::select(QMap< QString, QString> &values,const QString &select){
     QVector<QString> vectorReturned;
-   // QSqlQuery querySQL;
     ///Only exec if everything is right
     m_db.transaction();
     QSqlQuery querySQL = prepareBindValue(values,select);
-    //querySQL.prepare(select);
-    //querySQL.bindValue(":user",QVariant(values.at(0)));
     /*
     qDebug() << "Antes de exe next";
     qDebug() << "next es "<< querySQL.next();
@@ -65,32 +61,30 @@ QVector<QString> BBDD::select(QVector<QString> values, QString select)
     querySQL.exec();
     while(querySQL.next())
     {
-        qDebug() <<"CONTENIDO es: " <<  querySQL.value(0).toString();
+        vectorReturned.push_back(querySQL.value(0).toString());
         //vectorReturned.push_back(querySQL.value(0).toString());
     }//end while
-
-
     ///Only exec if everything is right
     m_db.commit();
     return vectorReturned;
-    //WIP================
 }//end
 
-QSqlQuery BBDD::prepareBindValue(QVector<QString> values, QString query)
+QSqlQuery BBDD::prepareBindValue(QMap< QString, QString> &values,const QString &select)
 {
     ///Open database in constructor
-    // //TODO pasar mapa, const y alias
     QSqlQuery queryReturned;
-    queryReturned.prepare(query);
-    int counter = 0;
-    for(QString value : values)
-    {
-        queryReturned.bindValue(":user", value);
-        counter++;
-    }//end for each
+    queryReturned.prepare(select);
+    ///Iterate in std-style. https://doc.qt.io/qt-5/qmap.html
+    QMap<QString,QString>::const_iterator i = values.constBegin();
+    while (i != values.constEnd()) {
+        ///Bind value before exec and write it in select query
+        queryReturned.bindValue(i.key(),i.value());
+        ++i;
+    }//end while iterate
     return queryReturned;
 }//end
-void BBDD::test()
+
+/*void BBDD::test()
 {
     QStringList devolver;
     connect();
@@ -113,5 +107,5 @@ void BBDD::test()
     }
     m_db.commit();
     disconnect();
-}
+}*/
 
