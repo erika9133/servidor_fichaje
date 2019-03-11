@@ -52,16 +52,17 @@ QString JSON::ParseLogin(const QString &user, const QString &pass, const QString
      * }
      */
     QJsonObject login;
-    QDateTime date = QDateTime::currentDateTime();
+    QDateTime date = QDateTime::currentDateTimeUtc();
+    //date.setTimeSpec(Qt::UTC);
     login["user"] = user;
     login["pass"] = pass;
     login["type"] = type;
-    login["date"] = date.toString();
+    login["date"] = date.toString("dd.MM.yyyy hh:mm:ss.z");
 
     QJsonValue value(login);
     QJsonObject message;
 
-    message.insert("mainlogin", value);
+    message.insert("login", value);
     QJsonDocument doc;
 
     doc.setObject(message);

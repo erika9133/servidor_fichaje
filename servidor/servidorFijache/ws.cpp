@@ -69,7 +69,7 @@ Socket *WS::findSocket(const QWebSocket *ptrSocket)
     {
         ///if can find one item (socket) in the list with the same pointer-socket, return the pointer-item
         ///therefore it can be called and edit from outside
-        if(m_sockets.at(i)->ptrSocket == ptrSocket){ //WIP error
+        if(m_sockets.at(i)->ptrSocket == ptrSocket){
             ptrReturned = m_sockets[i];
         }else{
         }
@@ -86,12 +86,12 @@ void WS::socketConnected()
     connect(ptrSocket, &QWebSocket::textMessageReceived, this, &WS::recivedMessage);
     connect(ptrSocket, &QWebSocket::disconnected, this, &WS::socketDisconnected);
     ///Create new socket and put its pointer in the socket list
-    Socket socket;
+    Socket *socket = new Socket();
     ///When validate or login the socket, will be change the bool status
-    socket.admin = false;
-    socket.valid = false;
-    socket.ptrSocket = ptrSocket;
-    m_sockets.push_back(&socket);
+    socket->admin = false;
+    socket->valid = false;
+    socket->ptrSocket = ptrSocket;
+    m_sockets.push_back(socket);
 }//end
 
 void WS::recivedMessage(QString message)

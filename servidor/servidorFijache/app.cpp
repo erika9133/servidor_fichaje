@@ -35,94 +35,107 @@ App::~App()
 }//end
 
 /***private***/
-bool App::checkLogin(const QString &user,const QString &pass)
+bool App::checkMainLogin(const IncomingMessage &message)
 {
     bool boolReturned = false;
+    ///Get QVector with user-password
+    QVector<QString> vectorLogin = JSON::unParseMainLogin(message.ptrMessage);
+
     const QString select= "SELECT clientes_pass FROM clientes WHERE clientes_user LIKE :user";
     ///BBDD select is prepared to accept several values cause we use a qMap.
     QMap< QString, QString> keyValue;
     ///Key - value
     QString key = ":user";
-    keyValue.insert(key,user);
+    keyValue.insert(key,vectorLogin.at(0));
     ///Insert qmap and query. the qmap will be itinerated by default for every key-value item.
     QVector<QString> result = m_bbdd->select(keyValue,select);
     ///If the login password is the same bbdd password the user is valid
-    if(!result.isEmpty() && result.at(0) == pass) boolReturned = true;
+    if(!result.isEmpty() && result.at(0) == vectorLogin.at(1))
+    {
+        Socket *temp = m_ws->findSocket(message.ptrSocket);
+        ///Just in case was a connecting ws error
+        if(temp != nullptr)
+        {
+            m_ws->findSocket(message.ptrSocket)->valid = true;
+            boolReturned = true;
+            qDebug() << "Socket: " << message.ptrSocket << " login as user client.";
+        }else{
+            qDebug() << "Error: Client in list is empty";
+        }//end else
+    }else{
+        qDebug() << "Error. Coudnt login the websocket client";
+    }//end else
     return boolReturned;
 }//end
 
-bool App::checkUser(const QString &user,const QString &pass)
+bool App::checkLogin(const IncomingMessage &message)
 {
     bool boolReturned = false;
+    ///Vector at 0 user. 1 pass. 2 type. 3 date
+    QVector<QString> vectorLogin = JSON::unParseLogin(message.ptrMessage);
+
     const QString select= "SELECT usuarios_pass FROM usuarios WHERE usuarios_ean13 LIKE :ean13 AND usuarios_valido IS TRUE" ;
     QMap< QString, QString> keyValue;
     QString key = ":ean13";
-    keyValue.insert(key,user);
+    keyValue.insert(key,vectorLogin.at(0));
     QVector<QString> result = m_bbdd->select(keyValue,select);
-    if(!result.isEmpty() && result.at(0) == pass) boolReturned = true;
+    ///if USER is right and active in db
+    if(!result.isEmpty() && result.at(0) == vectorLogin.at(1))
+    {
+        Socket *temp = m_ws->findSocket(message.ptrSocket);
+        if(temp != nullptr)
+        {
+            ///Previusly set it. if CLient is login
+            if(m_ws->findSocket(message.ptrSocket)->valid == true)
+            {
+                ///if type of login is right
+                if(vectorLogin.at(2) == "in" || vectorLogin.at(2) == "out")
+                {
+                    QDateTime dateTemp;
+                    dateTemp.fromString(vectorLogin.at(3),"dd.MM.yyyy hh:mm:ss.z");
+                    ///Needed to have a TimeSpect
+                   // dateTemp.setTimeSpec();
+                    qDebug() << vectorLogin.at(3);
+
+                    qDebug() << dateTemp.date();
+                    qDebug() << dateTemp.time();
+                    qDebug() << dateTemp.timeZone();
+                    qDebug() << dateTemp.timeSpec();
+                    ///if date is valid and real date
+                    if(dateTemp.isValid()) // && dateTemp < QDateTime::currentDateTime()
+                    {
+                        boolReturned = true;
+                        qDebug() << "right!! :)"; //WIP
+                    }else{
+                        qDebug() << "Date is not well formed.";
+                    }//end else
+                }else{
+                    qDebug() << "Error. Type of access is wrong.";
+                }//end else type in out
+            }else{
+                qDebug() << "Error. User is not valid. Need it to be login";
+            }//end else socket valid
+        }else{
+            qDebug() << "Error. Coudnt find client in list";
+        }//end else nullptr
+    }else{
+        qDebug() << "Error. Coudnt login the user";
+    }//end else login query
     return boolReturned;
 }//end
 
-bool App::checkRightData(const QString &type,const QString &date)
-{
-    bool boolReturned = false;
-    if(type == "in" || type == "out")
-    {
-        QDateTime dateTemp;
-        dateTemp.fromString(date,"dd/MM/yyyy  h:m:s");
-        if(dateTemp.isValid() && dateTemp < QDateTime::currentDateTime()){
-            boolReturned = true;
-        }
-    }
-    return boolReturned;
-}//end
+
 
 /***public slots***/
 //Main method to check messages and response or do things
 void App::processIncomingMessage(IncomingMessage m)
 {
     QString jType = JSON::findTypeMessage(m.ptrMessage);
-    if(jType == "mainlogin"){
-        QVector<QString> vectorLogin = JSON::unParseMainLogin(m.ptrMessage);
-        if(checkLogin(vectorLogin.at(0),vectorLogin.at(1)))
-        {
-            Socket *temp = m_ws->findSocket(m.ptrSocket);
-            if(temp != nullptr){
-                m_ws->findSocket(m.ptrSocket)->valid = true; //WIP not working
-                qDebug() << "Socket: " << m.ptrSocket << " login as user client.";
-            }else{
-                qDebug() << "error"; //WIP description
-            }
 
-        }else
-        {
-            qDebug() << "Error 04. Coudnt login the websocket client";
-        }//end else if mainwindow
-    }else{
-        ///Socket is login
-        if(m_ws->findSocket(m.ptrSocket)->valid == true) //WIP != nullptr struct
-        {
-            ///User login or logout request
-            if(jType == "login")
-            {
-                 QVector<QString> vectorLogin = JSON::unParseLogin(m.ptrMessage);
-                 if(checkUser(vectorLogin.at(0),vectorLogin.at(1)))
-                 {
-                     if(checkRightData(vectorLogin.at(2),vectorLogin.at(3))){
-                        //WIP making
-                     }
+    if(jType == "mainlogin") checkMainLogin(m); //WIP returned bool, do smt
+    else if(jType == "login") checkLogin(m);
+    else qDebug() << "Error: Message type is not valid";
 
-                 }else
-                 {
-                     qDebug() << "Error 05. User not valid.";
-                 }//end else if login
-            }else if(jType == "other")
-            {
-
-            }
-        ///If client hadnt logined and message is not a login request....
-        }else   qDebug() << "Error 05. Message error.";
-    }//end else jtype
 }//end
 
 //Tools
