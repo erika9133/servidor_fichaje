@@ -7,10 +7,7 @@
 #include <QDebug>
 #include "json.h"
 
-JSON::JSON()
-{
-
-}
+JSON::JSON(){}
 
 QString JSON::findTypeMessage(const QString *message)
 {
@@ -35,7 +32,7 @@ QString JSON::findTypeMessage(const QString *message)
 
 QVector<QString> JSON::unParseMainLogin(const QString *message)
 {
-    QVector<QString> vectorReturned;
+    QVector<QString> vectorReturned = {};
     ///Json Struct
     /*
     * {
@@ -83,7 +80,7 @@ QVector<QString> JSON::unParseMainLogin(const QString *message)
 
 QVector<QString> JSON::unParseLogin(const QString *message)
 {
-    QVector<QString> vectorReturned;
+    QVector<QString> vectorReturned = {};
     ///Json Struct
     /*{
      *      "login":
@@ -91,7 +88,6 @@ QVector<QString> JSON::unParseLogin(const QString *message)
      *          "pass":"xxxxxxx",
      *          "user":"xxxxxxx",
      *          "type": in/out",
-     *          "date: dd/mm/yyyy"
      *      }
      * }
      */
@@ -116,7 +112,7 @@ QVector<QString> JSON::unParseLogin(const QString *message)
                 QString pass = map["pass"].toString();
                 QString user = map["user"].toString();
                 QString type = map["type"].toString();
-                QString date = map["date"].toString();
+                //QString date = map["date"].toString();
                 pass = cleanJson(pass);
                 user = cleanJson(user);
                 type = cleanJson(type);
@@ -127,7 +123,7 @@ QVector<QString> JSON::unParseLogin(const QString *message)
                     vectorReturned.push_back(user);
                     vectorReturned.push_back(pass);
                     vectorReturned.push_back(type);
-                    vectorReturned.push_back(date);
+                    //vectorReturned.push_back(date);
                 }//end if
             }//end if map
         }else{
@@ -135,6 +131,41 @@ QVector<QString> JSON::unParseLogin(const QString *message)
         }//end if eslse document
     }//end if bytearray
     return vectorReturned;
+}//end
+
+QString response(const QMap<QString, QString> &values)
+{
+    QString stringReturned = "";
+    ///Json Struct
+    /*{
+     *      "response":
+     *      {
+     *          "key":"value",
+     *          "key":"value",...
+     *      }
+     * }
+     */
+
+    QJsonObject response;
+    ///Not using date in client. Insert in db.
+    QMap<QString,QString>::const_iterator i = values.constBegin();
+    while (i != values.constEnd())
+    {
+        ///Bind value before exec and write it in select query
+        response[i.key()] = i.value();
+        ++i;
+    }//end while iterate
+
+
+    QJsonValue value(response);
+    QJsonObject message;
+
+    message.insert("response", value);
+    QJsonDocument doc;
+
+    doc.setObject(message);
+    stringReturned = doc.toJson(QJsonDocument::Compact);
+    return stringReturned;
 }//end
 
 QString JSON::cleanJson(QString toClean)

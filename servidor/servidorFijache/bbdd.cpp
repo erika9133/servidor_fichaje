@@ -49,34 +49,62 @@ QVector<QString> BBDD::select(QMap< QString, QString> &values,const QString &sel
     ///Only exec if everything is right
     m_db.transaction();
     QSqlQuery querySQL = prepareBindValue(values,select);
-    /*
-    qDebug() << "Antes de exe next";
-    qDebug() << "next es "<< querySQL.next();
-    qDebug() << "valid es "<< querySQL.isValid();
-    qDebug() << "active es "<< querySQL.isActive();
-    qDebug() << "last es "<< querySQL.last();
-    qDebug() << "select es " << querySQL.isSelect();
-    qDebug() << "lastquerry es " << querySQL.lastQuery();
-    */
-    querySQL.exec();
-    while(querySQL.next())
+    if(querySQL.exec())
     {
-        vectorReturned.push_back(querySQL.value(0).toString());
-        //vectorReturned.push_back(querySQL.value(0).toString());
-    }//end while
+        while(querySQL.next())
+        {
+            if(querySQL.isValid())
+            {
+                vectorReturned.push_back(querySQL.value(0).toString());
+            }else{
+                 qDebug() << "Error. Query not valid";
+            }//end else valid
+        }//end while
+    }else{
+        qDebug() << "Error. Query not executed";
+    }//end else exec
+
     ///Only exec if everything is right
     m_db.commit();
     return vectorReturned;
 }//end
 
-QSqlQuery BBDD::prepareBindValue(QMap< QString, QString> &values,const QString &select)
+///Insert a generic query to db
+bool BBDD::insert(QMap< QString, QString> &values,const QString &insert){
+    bool boolReturned = false;
+    ///Only exec if everything is right
+    m_db.transaction();
+    QSqlQuery querySQL = prepareBindValue(values,insert);
+    if(querySQL.exec())
+    {
+        ///Insert return a user id, if its returned means insert is suscessfull
+        if(querySQL.next()){
+            if(querySQL.isValid())
+            {
+                boolReturned = true;
+            }else{
+                 qDebug() << "Error. Query not valid";
+            }//end else valid
+        }else{
+             qDebug() << "Error. Query not positionated in a valid record";
+        }//end else next
+    }else{
+        qDebug() << "Error. Query not executed";
+    }//end else exec
+    ///Only exec if everything is right
+    m_db.commit();
+    return boolReturned;
+}//end
+
+QSqlQuery BBDD::prepareBindValue(QMap<QString, QString> &values,const QString &select)
 {
     ///Open database in constructor
     QSqlQuery queryReturned;
     queryReturned.prepare(select);
     ///Iterate in std-style. https://doc.qt.io/qt-5/qmap.html
     QMap<QString,QString>::const_iterator i = values.constBegin();
-    while (i != values.constEnd()) {
+    while (i != values.constEnd())
+    {
         ///Bind value before exec and write it in select query
         queryReturned.bindValue(i.key(),i.value());
         ++i;

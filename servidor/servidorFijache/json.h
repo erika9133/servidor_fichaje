@@ -17,6 +17,7 @@ public:
     static QString findTypeMessage(const QString *message);
     static QVector<QString> unParseMainLogin(const QString *message);
     static QVector<QString> unParseLogin(const QString *message);
+    static QString response(const QMap<QString, QString> &values);
     static QString cleanJson(QString toClean);
 };
 

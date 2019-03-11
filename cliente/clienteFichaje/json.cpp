@@ -47,17 +47,16 @@ QString JSON::ParseLogin(const QString &user, const QString &pass, const QString
      *          "pass":"xxxxxxx",
      *          "user":"xxxxxxx",
      *          "type": in/out",
-     *          "date: dd/mm/yyyy"
      *      }
      * }
      */
     QJsonObject login;
-    QDateTime date = QDateTime::currentDateTimeUtc();
-    //date.setTimeSpec(Qt::UTC);
+    ///Not using date in client. Insert in db.
+    //QDateTime date = QDateTime::currentDateTime();
     login["user"] = user;
     login["pass"] = pass;
     login["type"] = type;
-    login["date"] = date.toString("dd.MM.yyyy hh:mm:ss.z");
+    //login["date"] = date.toString("dd.MM.yyyy hh:mm:ss.z");
 
     QJsonValue value(login);
     QJsonObject message;
@@ -69,3 +68,5 @@ QString JSON::ParseLogin(const QString &user, const QString &pass, const QString
     qStringReturned = doc.toJson(QJsonDocument::Compact);
     return  qStringReturned;
 }//end
+
+

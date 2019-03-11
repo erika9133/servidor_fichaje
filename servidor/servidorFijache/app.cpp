@@ -1,7 +1,6 @@
 #include <iostream> //readConfig
 #include <fstream> //readConfig
 #include <QMap>
-#include <QDateTime>
 #include "app.h"
 #include "json.h"
 
@@ -73,9 +72,9 @@ bool App::checkLogin(const IncomingMessage &message)
     bool boolReturned = false;
     ///Vector at 0 user. 1 pass. 2 type. 3 date
     QVector<QString> vectorLogin = JSON::unParseLogin(message.ptrMessage);
-
+    QMap<QString, QString> response;
     const QString select= "SELECT usuarios_pass FROM usuarios WHERE usuarios_ean13 LIKE :ean13 AND usuarios_valido IS TRUE" ;
-    QMap< QString, QString> keyValue;
+    QMap<QString, QString> keyValue;
     QString key = ":ean13";
     keyValue.insert(key,vectorLogin.at(0));
     QVector<QString> result = m_bbdd->select(keyValue,select);
@@ -91,36 +90,50 @@ bool App::checkLogin(const IncomingMessage &message)
                 ///if type of login is right
                 if(vectorLogin.at(2) == "in" || vectorLogin.at(2) == "out")
                 {
-                    QDateTime dateTemp;
-                    dateTemp.fromString(vectorLogin.at(3),"dd.MM.yyyy hh:mm:ss.z");
-                    ///Needed to have a TimeSpect
-                   // dateTemp.setTimeSpec();
-                    qDebug() << vectorLogin.at(3);
+                    ///Get UUID from ean13
+                    QMap< QString, QString> keyValue;
+                    QString key = ":ean13";
+                    keyValue.insert(key,vectorLogin.at(0));
+                    QString select = "SELECT usuarios_uuid FROM usuarios WHERE usuarios_ean13 LIKE :ean13";
+                    QVector<QString> id = m_bbdd->select(keyValue,select);
+                    QUuid logUuid = QUuid::createUuid();
+                    QString insert = "INSERT INTO log (log_uuid,usuarios_uuid,log_type)"
+                                     "VALUES"
+                                     "(:log_uuid,:usuarios_uuid,:log_type) RETURNING usuarios_uuid";
+                    ///A new map to pass values
+                    QMap< QString, QString> keyValueInsert;
+                    keyValueInsert.insert(":log_uuid",logUuid.toString());
+                    keyValueInsert.insert(":usuarios_uuid",id.at(0));
+                    keyValueInsert.insert(":log_type",vectorLogin.at(2));
 
-                    qDebug() << dateTemp.date();
-                    qDebug() << dateTemp.time();
-                    qDebug() << dateTemp.timeZone();
-                    qDebug() << dateTemp.timeSpec();
-                    ///if date is valid and real date
-                    if(dateTemp.isValid()) // && dateTemp < QDateTime::currentDateTime()
+                    if(m_bbdd->insert(keyValueInsert,insert))
                     {
+                        ///Suscess insert!
                         boolReturned = true;
-                        qDebug() << "right!! :)"; //WIP
+                        response.insert("valid","Login suscess");
+
                     }else{
-                        qDebug() << "Date is not well formed.";
-                    }//end else
+                        qDebug() << "Error. Error while insert data in db";
+                        response.insert("error","Error while insert data in db");
+                    }//end else insert valid
                 }else{
                     qDebug() << "Error. Type of access is wrong.";
+                    response.insert("error","Type of access is wrong.");
                 }//end else type in out
             }else{
                 qDebug() << "Error. User is not valid. Need it to be login";
+                response.insert("error","User is not valid. Need it to be login.");
             }//end else socket valid
         }else{
             qDebug() << "Error. Coudnt find client in list";
+            response.insert("error","Coudnt find client in list");
         }//end else nullptr
     }else{
         qDebug() << "Error. Coudnt login the user";
+        response.insert("error","Coudnt login the user");
     }//end else login query
+    QString responseString = JSON::response(response);
+    m_ws->sentMessage(&responseString,message.ptrSocket);
     return boolReturned;
 }//end
 
