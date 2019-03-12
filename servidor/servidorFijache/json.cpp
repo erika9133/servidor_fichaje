@@ -140,8 +140,8 @@ QString JSON::response(const QMap<QString, QString> &values)
     /*{
      *      "response":
      *      {
-     *          "key":"value",
-     *          "key":"value",...
+     *          "response1":"value",
+     *          "response2":"value",...
      *      }
      * }
      */

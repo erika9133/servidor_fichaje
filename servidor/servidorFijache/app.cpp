@@ -73,71 +73,79 @@ bool App::checkLogin(const IncomingMessage &message)
     ///Vector at 0 user. 1 pass. 2 type. 3 date
     QVector<QString> vectorLogin = JSON::unParseLogin(message.ptrMessage);
     QMap<QString, QString> response;
-    const QString select= "SELECT usuarios_pass FROM usuarios WHERE usuarios_ean13 LIKE :ean13 AND usuarios_valido IS TRUE" ;
-    QMap<QString, QString> keyValue;
-    QString key = ":ean13";
-    keyValue.insert(key,vectorLogin.at(0));
-    QVector<QString> result = m_bbdd->select(keyValue,select);
-    ///if USER is right and active in db
-    if(!result.isEmpty() && result.at(0) == vectorLogin.at(1))
+    qDebug() << vectorLogin.size();
+    if(vectorLogin.size() == 3)
     {
-        Socket *temp = m_ws->findSocket(message.ptrSocket);
-        if(temp != nullptr)
+        const QString select= "SELECT usuarios_pass FROM usuarios WHERE usuarios_ean13 LIKE :ean13 AND usuarios_valido IS TRUE" ;
+        QMap<QString, QString> keyValue;
+        QString key = ":ean13";
+        keyValue.insert(key,vectorLogin.at(0));
+        QVector<QString> result = m_bbdd->select(keyValue,select);
+        ///if USER is right and active in db
+        if(!result.isEmpty() && result.at(0) == vectorLogin.at(1))
         {
-            ///Previusly set it. if CLient is login
-            if(m_ws->findSocket(message.ptrSocket)->valid == true)
+            Socket *temp = m_ws->findSocket(message.ptrSocket);
+            if(temp != nullptr)
             {
-                ///if type of login is right
-                if(vectorLogin.at(2) == "in" || vectorLogin.at(2) == "out")
+                ///Previusly set it. if CLient is login
+                if(m_ws->findSocket(message.ptrSocket)->valid == true)
                 {
-                    ///Get UUID from ean13
-                    QMap< QString, QString> keyValue;
-                    QString key = ":ean13";
-                    keyValue.insert(key,vectorLogin.at(0));
-                    QString select = "SELECT usuarios_uuid FROM usuarios WHERE usuarios_ean13 LIKE :ean13";
-                    QVector<QString> id = m_bbdd->select(keyValue,select);
-                    QUuid logUuid = QUuid::createUuid();
-                    QString insert = "INSERT INTO log (log_uuid,usuarios_uuid,log_type)"
-                                     "VALUES"
-                                     "(:log_uuid,:usuarios_uuid,:log_type) RETURNING usuarios_uuid";
-                    ///A new map to pass values
-                    QMap< QString, QString> keyValueInsert;
-                    keyValueInsert.insert(":log_uuid",logUuid.toString());
-                    keyValueInsert.insert(":usuarios_uuid",id.at(0));
-                    keyValueInsert.insert(":log_type",vectorLogin.at(2));
-
-                    if(m_bbdd->insert(keyValueInsert,insert))
+                    ///if type of login is right
+                    if(vectorLogin.at(2) == "in" || vectorLogin.at(2) == "out")
                     {
-                        ///Suscess insert!
-                        boolReturned = true;
-                        QDebug debug = qDebug();
-                        debug.noquote();
-                        debug << "User " << vectorLogin.at(0) << "have log-"+vectorLogin.at(2) << "at " << QDateTime::currentDateTime().toString();
+                        ///Get UUID from ean13
+                        QMap< QString, QString> keyValue;
+                        QString key = ":ean13";
+                        keyValue.insert(key,vectorLogin.at(0));
+                        QString select = "SELECT usuarios_uuid FROM usuarios WHERE usuarios_ean13 LIKE :ean13";
+                        QVector<QString> id = m_bbdd->select(keyValue,select);
+                        QUuid logUuid = QUuid::createUuid();
+                        QString insert = "INSERT INTO log (log_uuid,usuarios_uuid,log_type)"
+                                         "VALUES"
+                                         "(:log_uuid,:usuarios_uuid,:log_type) RETURNING usuarios_uuid";
+                        ///A new map to pass values
+                        QMap< QString, QString> keyValueInsert;
+                        keyValueInsert.insert(":log_uuid",logUuid.toString());
+                        keyValueInsert.insert(":usuarios_uuid",id.at(0));
+                        keyValueInsert.insert(":log_type",vectorLogin.at(2));
 
-                        response.insert("valid","Login suscess");
+                        if(m_bbdd->insert(keyValueInsert,insert))
+                        {
+                            ///Suscess insert!
+                            boolReturned = true;
+                            QDebug debug = qDebug();
+                            debug.noquote();
+                            debug << "User " << vectorLogin.at(0) << "have log"+vectorLogin.at(2) << "at " << QDateTime::currentDateTime().toString();
 
+                            if(vectorLogin.at(2) == "in") response.insert("response1","Login suscess");
+                            else if(vectorLogin.at(2) == "out") response.insert("response1","Logout suscess");
+                        }else{
+                            qDebug() << "Error. Error while insert data in db";
+                            response.insert("error","Error while insert data in db");
+                        }//end else insert valid
                     }else{
-                        qDebug() << "Error. Error while insert data in db";
-                        response.insert("error","Error while insert data in db");
-                    }//end else insert valid
+                        qDebug() << "Error. Type of access is wrong.";
+                        response.insert("error","Type of access is wrong.");
+                    }//end else type in out
                 }else{
-                    qDebug() << "Error. Type of access is wrong.";
-                    response.insert("error","Type of access is wrong.");
-                }//end else type in out
+                    qDebug() << "Error. User is not valid. Need it to be login";
+                    response.insert("error","User is not valid. Need it to be login.");
+                }//end else socket valid
             }else{
-                qDebug() << "Error. User is not valid. Need it to be login";
-                response.insert("error","User is not valid. Need it to be login.");
-            }//end else socket valid
+                qDebug() << "Error. Coudnt find client in list";
+                response.insert("error","Coudnt find client in list");
+            }//end else nullptr
         }else{
-            qDebug() << "Error. Coudnt find client in list";
-            response.insert("error","Coudnt find client in list");
-        }//end else nullptr
+            qDebug() << "Error. Coudnt login the user";
+            response.insert("error","Coudnt login the user");
+        }//end else login query
     }else{
-        qDebug() << "Error. Coudnt login the user";
-        response.insert("error","Coudnt login the user");
-    }//end else login query
+         qDebug() << "Error. One parameter is missing";
+         response.insert("error","One parameter is missing");
+    }//end else vector size
+
     QString responseString = JSON::response(response);
-    m_ws->sentMessage(&responseString,message.ptrSocket); //WIP
+    m_ws->sentMessage(&responseString,message.ptrSocket);
     return boolReturned;
 }//end
 

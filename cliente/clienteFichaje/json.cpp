@@ -69,4 +69,65 @@ QString JSON::ParseLogin(const QString &user, const QString &pass, const QString
     return  qStringReturned;
 }//end
 
+QVector<QString> JSON::unParseResponse(const QString &message)
+{
+    QVector<QString> vectorReturned = {};
+    ///Json Struct
+    /*{
+     *      "response":
+     *      {
+     *          "response1":"value",
+     *          "response2":"value",...
+     *      }
+     * }
+     */
+    ///Firt it nedeed to be qByteArray
+    QByteArray byteArray = message.toUtf8();
 
+    if(!byteArray.isEmpty()) ///Check QByteArray
+    {
+        QJsonParseError *error = nullptr;
+        QJsonDocument doc = QJsonDocument::fromJson(byteArray, error);
+        if(doc.isObject() && !error->NoError){ ///Check document
+            QJsonObject rootObj = doc.object();
+            QVariantMap rootMap = rootObj.toVariantMap();
+            QVariantMap map = rootMap["response"].toMap();
+            if(!map.empty())
+            {
+                QVariantMap::const_iterator i = map.constBegin();
+                    while (i != map.constEnd())
+                    {
+                        //qDebug() <<"key" <<i.key() << "value" << i.value();
+                        qDebug() << i.value().toString();
+                        vectorReturned.push_back(i.value().toString());
+                        ++i;
+                    }//end while iterate
+
+
+
+
+               /*///Get two elements that we need it
+                QString pass = map["pass"].toString();
+                QString user = map["user"].toString();
+                QString type = map["type"].toString();
+                //QString date = map["date"].toString();
+                pass = cleanJson(pass);
+                user = cleanJson(user);
+                type = cleanJson(type);
+
+                //date = cleanJson(date);
+                if(!user.isEmpty() && !pass.isEmpty())
+                {
+                    vectorReturned.push_back(user);
+                    vectorReturned.push_back(pass);
+                    vectorReturned.push_back(type);
+                    //vectorReturned.push_back(date);
+                }//end if
+            }//end if map
+        }else{
+            qDebug() << error->error;
+        }//end if eslse document
+    }//end if bytearray*/
+            }}}
+    return vectorReturned;
+}//end

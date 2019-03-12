@@ -54,5 +54,6 @@ void WS::disconnected()
 
 void WS::reciveMessage(const QString message) const
 {
+   // qDebug() << "message recived: " << message;
     emit emitRecivedMessage(message);
 }//end

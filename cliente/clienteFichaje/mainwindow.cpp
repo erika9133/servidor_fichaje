@@ -1,6 +1,7 @@
 #include <iostream> //readConfig
 #include <fstream> //readConfig
 #include <QDebug>
+#include <QTimer> //Remove screen
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include "json.h"
@@ -20,15 +21,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         }//end if
         m_ws = new WS(ip, m_config.at(2).toUShort());
         connect(m_ws, SIGNAL(loginReady()),this,SLOT(doLogin()));
-        connect(m_ws, SIGNAL(emitRecivedMessage()),this,SLOT(processIncomingMessage()));
+        connect(m_ws, SIGNAL(emitRecivedMessage(QString)),this,SLOT(processIncomingMessage(QString)));
 
     }else{
         qDebug() << "Error 001. Config file damage.";
     }//end if else
     ui->setupUi(this);
-   // ui->logginbtn->setEnabled(false);
+    //ui->logginbtn->setEnabled(false);
     //ui->logoutbtn->setEnabled(false);
-    //Debug****
+    //Comment when debug ends
     ui->ean13->setText("1234567890123");
     ui->pass->setText("1234");
 }//end
@@ -86,7 +87,21 @@ void MainWindow::on_logginbtn_clicked()
     m_ws->sendMessage(JSON::ParseLogin(ui->ean13->text(),ui->pass->text(),"in"));
 }//end
 
-void MainWindow::processIncomingMessage(QString &message)
+void MainWindow::processIncomingMessage(QString message)
 {
-    qDebug() << "recived"<< message;
+   ui->lineEdit->setText(JSON::unParseResponse(message).first());
+   QTimer::singleShot(1000, this,SLOT(cleanScreen()));
 }//end
+
+void MainWindow::cleanScreen()
+{
+    ui->lineEdit->setText("");
+    //Uncomment when debug ends
+    //ui->ean13->setText("");
+    //ui->pass->setText("");
+}//end
+
+void MainWindow::on_logoutbtn_clicked()
+{
+     m_ws->sendMessage(JSON::ParseLogin(ui->ean13->text(),ui->pass->text(),"out"));
+}
