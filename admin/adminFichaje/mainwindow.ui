@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>616</width>
-    <height>164</height>
+    <width>627</width>
+    <height>369</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QLineEdit" name="ean13">
+   <widget class="QLineEdit" name="user_name">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>70</x>
       <y>40</y>
-      <width>111</width>
+      <width>81</width>
       <height>24</height>
      </rect>
     </property>
@@ -27,35 +27,35 @@
    <widget class="QPushButton" name="logginbtn">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>160</x>
       <y>40</y>
       <width>80</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
-     <string>Login</string>
+     <string>Create</string>
     </property>
    </widget>
    <widget class="QPushButton" name="logoutbtn">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>160</x>
       <y>70</y>
       <width>80</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
-     <string>Logout</string>
+     <string>Delete</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>250</x>
       <y>40</y>
-      <width>311</width>
+      <width>341</width>
       <height>51</height>
      </rect>
     </property>
@@ -70,12 +70,12 @@
      <string/>
     </property>
    </widget>
-   <widget class="QLineEdit" name="pass">
+   <widget class="QLineEdit" name="user_pass">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>70</x>
       <y>70</y>
-      <width>111</width>
+      <width>81</width>
       <height>24</height>
      </rect>
     </property>
@@ -90,7 +90,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>CODE</string>
+     <string>Name</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
@@ -103,7 +103,23 @@
      </rect>
     </property>
     <property name="text">
-     <string>PASS</string>
+     <string>Pass</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>581</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
     </property>
    </widget>
   </widget>
@@ -112,7 +128,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>616</width>
+     <width>627</width>
      <height>22</height>
     </rect>
    </property>

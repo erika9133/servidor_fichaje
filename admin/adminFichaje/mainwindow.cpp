@@ -31,8 +31,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     //ui->logginbtn->setEnabled(false);
     //ui->logoutbtn->setEnabled(false);
     //Comment when debug ends
-    ui->ean13->setText("8411111000001");
-    ui->pass->setText("1234");
+    ui->user_name->setText("pepe2");
+    ui->user_pass->setText("1234");
 }//end
 
 MainWindow::~MainWindow()
@@ -80,18 +80,19 @@ QVector<QString> MainWindow::readConfig(const QString file) const
 void MainWindow::doLogin()
 {
    ///When websocket is susscessfully connected, can be send it login info
-    m_ws->sendMessage(JSON::ParseMainLogin(m_config.at(0),m_config.at(1)));
+   qDebug() << m_config.at(0) << " " << m_config.at(1);
+    m_ws->sendMessage(JSON::parseMainLogin(m_config.at(0),m_config.at(1)));
 }//end
 
 void MainWindow::on_logginbtn_clicked()
 {
-    m_ws->sendMessage(JSON::ParseLogin(ui->ean13->text(),ui->pass->text(),"in"));
+    m_ws->sendMessage(JSON::parseCreateUser(ui->user_name->text(),ui->user_pass->text()));
 }//end
 
 void MainWindow::processIncomingMessage(QString message)
 {
    ui->lineEdit->setText(JSON::unParseResponse(message).first());
-   QTimer::singleShot(1000, this,SLOT(cleanScreen()));
+   QTimer::singleShot(10000, this,SLOT(cleanScreen()));
 }//end
 
 void MainWindow::cleanScreen()
@@ -104,5 +105,5 @@ void MainWindow::cleanScreen()
 
 void MainWindow::on_logoutbtn_clicked()
 {
-     m_ws->sendMessage(JSON::ParseLogin(ui->ean13->text(),ui->pass->text(),"out"));
+
 }//end

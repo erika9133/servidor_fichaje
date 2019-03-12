@@ -44,7 +44,8 @@ void BBDD::disconnect()
 }//end
 
 ///Send a generic query to db
-QVector<QString> BBDD::select(QMap< QString, QString> &values,const QString &select){
+QVector<QString> BBDD::select(QMap< QString, QString> &values,const QString &select)
+{
     QVector<QString> vectorReturned;
     ///Only exec if everything is right
     m_db.transaction();
@@ -69,12 +70,43 @@ QVector<QString> BBDD::select(QMap< QString, QString> &values,const QString &sel
     return vectorReturned;
 }//end
 
+QVector<QVector<QString>> BBDD::selectSeveralLines(QMap< QString, QString> &values,const QString &select)
+{
+   QVector<QVector<QString>> vectorReturned;
+    ///Only exec if everything is right
+    m_db.transaction();
+    QSqlQuery querySQL = prepareBindValue(values,select);
+    if(querySQL.exec())
+    {
+        //querySQL.next();
+        while(querySQL.next())
+        {
+            if(querySQL.isValid())
+            {
+                QVector<QString> vector = {};
+                for(int i = 0; i<= querySQL.size(); i++) vector.push_back(querySQL.value(i).toString());
+                vectorReturned.push_back(vector);
+            }else{
+                 qDebug() << "Error. Query not valid";
+            }//end else valid
+        }//end while
+    }else{
+        qDebug() << "Error. Query not executed";
+    }//end else exec
+
+    ///Only exec if everything is right
+    m_db.commit();
+    return vectorReturned;
+}//end
+
+
 QString BBDD::simpleSelect(const QString &select)
 {
     QString returned;
     ///Only exec if everything is right
     m_db.transaction();
     QSqlQuery querySQL;
+    querySQL.prepare(select);
     if(querySQL.exec())
     {
         while(querySQL.next())

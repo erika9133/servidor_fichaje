@@ -14,9 +14,13 @@ class App : public QObject
    QVector<QString> m_config; //Module config data
    bool checkMainLogin(const IncomingMessage &message); //Check client data login (Several clients, one client is used for several users (peaple))
    bool checkLogin(const IncomingMessage &message); //Check user data login
+   bool checkAdmin(const IncomingMessage &message);
+   bool createUser(const IncomingMessage &message);
    QString generateEan13();
    int generateControlDigit(QString code);
+   QString generateEmployeeCode();
    bool checkControlDigit(QString code);
+
 public:
     App();
     ~App();

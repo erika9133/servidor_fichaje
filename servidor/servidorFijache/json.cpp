@@ -133,6 +133,47 @@ QVector<QString> JSON::unParseLogin(const QString *message)
     return vectorReturned;
 }//end
 
+QVector<QString> JSON::unParseCreateUser(const QString *message)
+{
+    QVector<QString> vectorReturned = {};
+    ///Json Struct
+    /*{
+     *      "createUser":
+     *      {
+     *          "name":"xxxxxxx",
+     *          "pass":"xxxxxxx",
+     *      }
+     * }
+     */
+    QByteArray byteArray = message->toUtf8();
+
+    if(!byteArray.isEmpty())
+    {
+        QJsonParseError *error = nullptr;
+        QJsonDocument doc = QJsonDocument::fromJson(byteArray, error);
+        if(doc.isObject() && !error->NoError){
+            QJsonObject rootObj = doc.object();
+            QVariantMap rootMap = rootObj.toVariantMap();
+            QVariantMap map = rootMap["createUser"].toMap();
+            if(!map.empty())
+            {
+                QString pass = map["name"].toString();
+                QString user = map["pass"].toString();
+                pass = cleanJson(pass);
+                user = cleanJson(user);
+                if(!user.isEmpty() && !pass.isEmpty())
+                {
+                    vectorReturned.push_back(user);
+                    vectorReturned.push_back(pass);
+                }//end if
+            }//end if map
+        }else{
+            qDebug() << error->error;
+        }//end if eslse document
+    }//end if bytearray
+    return vectorReturned;
+}//end
+
 QString JSON::response(const QMap<QString, QString> &values)
 {
     QString stringReturned = "";

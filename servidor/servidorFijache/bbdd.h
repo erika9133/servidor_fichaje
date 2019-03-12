@@ -21,6 +21,7 @@ public:
     void connect();
     void disconnect();
     QVector<QString> select(QMap< QString,  QString> &values,const QString &select);
+    QVector<QVector<QString>> selectSeveralLines(QMap< QString, QString> &values,const QString &select);
     bool insert(QMap< QString, QString> &values,const QString &insert);
     QSqlQuery prepareBindValue(QMap< QString,  QString> &values,const QString &select);
     QString simpleSelect(const QString &select);

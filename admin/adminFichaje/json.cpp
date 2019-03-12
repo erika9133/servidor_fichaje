@@ -8,7 +8,7 @@
 
 JSON::JSON(){}//end
 
-QString JSON::ParseMainLogin(const QString &user, const QString &pass)
+QString JSON::parseMainLogin(const QString &user, const QString &pass)
 {
     QString qStringReturned = "";
     ///Json Struct
@@ -37,31 +37,27 @@ QString JSON::ParseMainLogin(const QString &user, const QString &pass)
     return  qStringReturned;
 }//end
 
-QString JSON::ParseLogin(const QString &user, const QString &pass, const QString &type)
+QString JSON::parseCreateUser(const QString &name, const QString &pass)
 {
     QString qStringReturned = "";
     ///Json Struct
     /*{
-     *      "login":
+     *      "createUser":
      *      {
+     *          "name":"xxxxxxx",
      *          "pass":"xxxxxxx",
-     *          "user":"xxxxxxx",
-     *          "type": in/out",
      *      }
      * }
      */
     QJsonObject login;
     ///Not using date in client. Insert in db.
-    //QDateTime date = QDateTime::currentDateTime();
-    login["user"] = user;
+    login["name"] = name;
     login["pass"] = pass;
-    login["type"] = type;
-    //login["date"] = date.toString("dd.MM.yyyy hh:mm:ss.z");
 
     QJsonValue value(login);
     QJsonObject message;
 
-    message.insert("login", value);
+    message.insert("createUser", value);
     QJsonDocument doc;
 
     doc.setObject(message);
@@ -102,9 +98,6 @@ QVector<QString> JSON::unParseResponse(const QString &message)
                         vectorReturned.push_back(i.value().toString());
                         ++i;
                     }//end while iterate
-
-            }//end if
-        }//end if
-    }//end if
+            }}}
     return vectorReturned;
 }//end

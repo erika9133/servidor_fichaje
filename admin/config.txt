@@ -1,0 +1,8 @@
+//user
+admin
+//pass
+admin
+//port
+3344
+//ip
+localhost

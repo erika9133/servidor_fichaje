@@ -14,7 +14,7 @@ App::App()
         QHostAddress  ip = QHostAddress();
         ///cant convert ip to localhost
         if(m_config.at(0) == "localhost" || m_config.at(0) == "127.0.0.1"){
-            ip.setAddress(QHostAddress::LocalHost);
+           ip.setAddress(QHostAddress::LocalHost);
         }else{
            ip.setAddress(m_config.at(0));
         }//end if
@@ -41,24 +41,30 @@ bool App::checkMainLogin(const IncomingMessage &message)
     ///Get QVector with user-password
     QVector<QString> vectorLogin = JSON::unParseMainLogin(message.ptrMessage);
 
-    const QString select= "SELECT clientes_pass FROM clientes WHERE clientes_user LIKE :user";
+    const QString select= "SELECT clientes_pass,clientes_admin FROM clientes WHERE clientes_user LIKE :user";
     ///BBDD select is prepared to accept several values cause we use a qMap.
     QMap< QString, QString> keyValue;
     ///Key - value
     QString key = ":user";
+    QString loginInfo = "user";
+
     keyValue.insert(key,vectorLogin.at(0));
     ///Insert qmap and query. the qmap will be itinerated by default for every key-value item.
-    QVector<QString> result = m_bbdd->select(keyValue,select);
+    QVector<QVector<QString>> result = m_bbdd->selectSeveralLines(keyValue,select);
     ///If the login password is the same bbdd password the user is valid
-    if(!result.isEmpty() && result.at(0) == vectorLogin.at(1))
+    if(!result.isEmpty() && result.at(0).at(0) == vectorLogin.at(1))
     {
         Socket *temp = m_ws->findSocket(message.ptrSocket);
         ///Just in case was a connecting ws error
         if(temp != nullptr)
         {
             m_ws->findSocket(message.ptrSocket)->valid = true;
+            if(result.at(0).at(1) == "true"){
+                loginInfo = "admin";
+                m_ws->findSocket(message.ptrSocket)->admin = true;
+            }//end if
             boolReturned = true;
-            qDebug() << "Socket: " << message.ptrSocket << " login as user client.";
+            qDebug() << "Socket: " << message.ptrSocket << " login as "+loginInfo+" client.";
         }else{
             qDebug() << "Error: Client in list is empty";
         }//end else
@@ -74,7 +80,6 @@ bool App::checkLogin(const IncomingMessage &message)
     ///Vector at 0 user. 1 pass. 2 type. 3 date
     QVector<QString> vectorLogin = JSON::unParseLogin(message.ptrMessage);
     QMap<QString, QString> response;
-    qDebug() << vectorLogin.size();
     if(vectorLogin.size() == 3)
     {
         const QString select= "SELECT usuarios_pass FROM usuarios WHERE usuarios_ean13 LIKE :ean13 AND usuarios_valido IS TRUE" ;
@@ -150,16 +155,45 @@ bool App::checkLogin(const IncomingMessage &message)
     return boolReturned;
 }//end
 
+bool App::createUser(const IncomingMessage &message)
+{
+      bool boolReturned = false;
+      QMap<QString, QString> response;
+      //TODO make if validations and add response else statement
+      QString ean13 = generateEan13();
+      QVector<QString> vectorCreateUser = JSON::unParseCreateUser(message.ptrMessage);
+      QMap<QString,QString> map;
+      QString insert = "INSERT INTO usuarios (usuarios_uuid,usuarios_pass,usuarios_ean13,usuarios_valido,usuarios_codigo,usuarios_name)"
+                       "VALUES"
+                       "(:usuarios_uuid,:usuarios_pass,:usuarios_ean13,:usuarios_valido,:usuarios_codigo,:usuarios_name) RETURNING usuarios_uuid";
+      ///A new map to pass values
+      QMap< QString, QString> keyValueInsert;
+      map.insert(":usuarios_uuid",QUuid::createUuid().toString());
+      map.insert(":usuarios_pass",vectorCreateUser.at(1));
+      map.insert(":usuarios_ean13",ean13);
+      map.insert(":usuarios_valido","true");
+      map.insert(":usuarios_codigo",generateEmployeeCode());
+      map.insert(":usuarios_name",vectorCreateUser.at(0));
+      if(m_bbdd->insert(map,insert))
+      {
+          response.insert("response1","user created with "+ean13+" CODE");
+          QString responseString = JSON::response(response);
+          m_ws->sentMessage(&responseString,message.ptrSocket);
+          boolReturned = true;
+      }//end if
+      return  boolReturned;
 
+}//end
 
 /***public slots***/
 //Main method to check messages and response or do things
 void App::processIncomingMessage(IncomingMessage m)
 {
     QString jType = JSON::findTypeMessage(m.ptrMessage);
-
-    if(jType == "mainlogin") checkMainLogin(m); //WIP returned bool, do smt
+    //TODO Make smt with return bool statement from check and create
+    if(jType == "mainlogin") checkMainLogin(m);
     else if(jType == "login") checkLogin(m);
+    else if(jType == "createUser") createUser(m);
     else qDebug() << "Error: Message type is not valid";
 
 }//end
@@ -209,16 +243,28 @@ QVector<QString> App::readConfig(const QString file) const
 QString App::generateEan13()
 {
     QString code = "";
-    int country = 84; ///spain
-    int company = 11111; ///out company;
-    int user = m_bbdd->simpleSelect("SELECT usuarios_codigo FROM usuarios ORDER BY usuarios_codigo DESC LIMIT 1;").toInt();
-    QString code;
-    code.push_back(QString::number(country));
-    code.push_back(QString::number(company));
-    code.push_back(QString::number(user));
+    QString country = "84"; ///spain
+    QString company = "11111"; ///out company;
+    QString user = generateEmployeeCode();
+    code.push_back(country);
+    code.push_back(company);
+    code.push_back(user);
     code.push_back(QString::number(generateControlDigit(code)));
-    user++;
     return code;
+}//end
+
+QString App::generateEmployeeCode()
+{
+  QString stringReturned;
+  int user = m_bbdd->simpleSelect("SELECT usuarios_codigo FROM usuarios ORDER BY usuarios_codigo DESC LIMIT 1;").toInt();
+  user++;
+  QString temp = QString::number(user);
+  ///Put zeros
+  if(user <10) stringReturned = "0000"+temp;
+  if(user >=10 && user <100) stringReturned = "000"+temp;
+  if(user >=100 && user <1000) stringReturned = "00"+temp;
+  if(user >=1000 && user <10000) stringReturned = "0"+temp;
+  return stringReturned;
 }//end
 
 int App::generateControlDigit(QString code)
@@ -228,7 +274,7 @@ int App::generateControlDigit(QString code)
     int pair = 0;
     int odd = 0;
     int temp;
-    for (int i = code.size(); i >= 1; i--)
+    for (int i = code.size()-1; i >= 1; i--)
     {
         if (i % 2 != 0)
         {
@@ -252,7 +298,7 @@ bool App::checkControlDigit(QString code)
     int pair = 0;
     int odd = 0;
     int temp;
-    for (int i = check.size(); i >= 1; i--)
+    for (int i = check.size()-1; i >= 1; i--)
     {
         if (i % 2 != 0)
         {
