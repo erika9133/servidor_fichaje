@@ -107,7 +107,7 @@ void WS::recivedMessage(QString message)
     m.ptrMessage = &message;
     ///emit struct to main application to be process
     emit emitRecivedMessage(m);
-    qDebug() << "From: " << ptrSocket << " Message recived: " << message;
+    //qDebug() << "From: " << ptrSocket << " Message recived: " << message;
 }//end
 
 void WS::onClosed()

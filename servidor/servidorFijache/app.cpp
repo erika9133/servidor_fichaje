@@ -110,6 +110,10 @@ bool App::checkLogin(const IncomingMessage &message)
                     {
                         ///Suscess insert!
                         boolReturned = true;
+                        QDebug debug = qDebug();
+                        debug.noquote();
+                        debug << "User " << vectorLogin.at(0) << "have log-"+vectorLogin.at(2) << "at " << QDateTime::currentDateTime().toString();
+
                         response.insert("valid","Login suscess");
 
                     }else{
@@ -133,7 +137,7 @@ bool App::checkLogin(const IncomingMessage &message)
         response.insert("error","Coudnt login the user");
     }//end else login query
     QString responseString = JSON::response(response);
-    m_ws->sentMessage(&responseString,message.ptrSocket);
+    m_ws->sentMessage(&responseString,message.ptrSocket); //WIP
     return boolReturned;
 }//end
 

@@ -54,5 +54,5 @@ void WS::disconnected()
 
 void WS::reciveMessage(const QString message) const
 {
-    emit procesarMensaje(message);
+    emit emitRecivedMessage(message);
 }//end

@@ -11,7 +11,7 @@ class QWebSocket; ///Clients to connect to the server
 
 struct IncomingMessage {
   const QString *ptrMessage;
-  const QWebSocket *ptrSocket;
+   QWebSocket *ptrSocket;
 };
 
 struct Socket {

@@ -23,6 +23,7 @@ public:
 
 public slots:
     void doLogin(); ///Wait for websocket to be susscessfully connected
+    void processIncomingMessage(QString &message);
 
 private slots:
     void on_logginbtn_clicked();

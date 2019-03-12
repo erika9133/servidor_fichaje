@@ -14,7 +14,7 @@ class App : public QObject
    QVector<QString> m_config; //Module config data
    bool checkMainLogin(const IncomingMessage &message); //Check client data login (Several clients, one client is used for several users (peaple))
    bool checkLogin(const IncomingMessage &message); //Check user data login
-   bool checkRightData(const QString &type,const QString &date); //Check data type and date is right
+
 
 public:
     App();

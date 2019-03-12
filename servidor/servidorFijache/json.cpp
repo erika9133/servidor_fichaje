@@ -133,7 +133,7 @@ QVector<QString> JSON::unParseLogin(const QString *message)
     return vectorReturned;
 }//end
 
-QString response(const QMap<QString, QString> &values)
+QString JSON::response(const QMap<QString, QString> &values)
 {
     QString stringReturned = "";
     ///Json Struct
@@ -147,15 +147,12 @@ QString response(const QMap<QString, QString> &values)
      */
 
     QJsonObject response;
-    ///Not using date in client. Insert in db.
     QMap<QString,QString>::const_iterator i = values.constBegin();
     while (i != values.constEnd())
     {
-        ///Bind value before exec and write it in select query
         response[i.key()] = i.value();
         ++i;
     }//end while iterate
-
 
     QJsonValue value(response);
     QJsonObject message;
