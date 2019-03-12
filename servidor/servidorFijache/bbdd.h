@@ -20,10 +20,10 @@ public:
 
     void connect();
     void disconnect();
-    void test();
     QVector<QString> select(QMap< QString,  QString> &values,const QString &select);
     bool insert(QMap< QString, QString> &values,const QString &insert);
     QSqlQuery prepareBindValue(QMap< QString,  QString> &values,const QString &select);
+    QString simpleSelect(const QString &select);
 };
 
 #endif // BBDD_H

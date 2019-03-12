@@ -104,4 +104,4 @@ void MainWindow::cleanScreen()
 void MainWindow::on_logoutbtn_clicked()
 {
      m_ws->sendMessage(JSON::ParseLogin(ui->ean13->text(),ui->pass->text(),"out"));
-}
+}//end

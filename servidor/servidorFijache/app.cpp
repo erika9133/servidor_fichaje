@@ -1,6 +1,7 @@
 #include <iostream> //readConfig
 #include <fstream> //readConfig
 #include <QMap>
+#include <QChar> //ean13 checksun
 #include "app.h"
 #include "json.h"
 
@@ -203,4 +204,65 @@ QVector<QString> App::readConfig(const QString file) const
        }//end while
     }//end if
     return qVectorReturned;
+}//end
+
+QString App::generateEan13()
+{
+    QString code = "";
+    int country = 84; ///spain
+    int company = 11111; ///out company;
+    int user = m_bbdd->simpleSelect("SELECT usuarios_codigo FROM usuarios ORDER BY usuarios_codigo DESC LIMIT 1;").toInt();
+    QString code;
+    code.push_back(QString::number(country));
+    code.push_back(QString::number(company));
+    code.push_back(QString::number(user));
+    code.push_back(QString::number(generateControlDigit(code)));
+    user++;
+    return code;
+}//end
+
+int App::generateControlDigit(QString code)
+{
+    ///C# Wikipedia example adapted
+    int intReturned = -1;
+    int pair = 0;
+    int odd = 0;
+    int temp;
+    for (int i = code.size(); i >= 1; i--)
+    {
+        if (i % 2 != 0)
+        {
+            ///Digital value transform QChar to int
+            odd +=  code.at(i).digitValue();
+        }else{
+            pair += code.at(i).digitValue();
+        }//end else
+    }//end for
+    temp = (odd*3) + pair ;
+    intReturned = (10 - (temp % 10)) % 10;
+    return intReturned;
+}//end
+
+bool App::checkControlDigit(QString code)
+{
+    bool boolReturned = false;
+    ///remove checksun number
+    QString check = code.remove(12,13);
+    ///and generate again
+    int pair = 0;
+    int odd = 0;
+    int temp;
+    for (int i = check.size(); i >= 1; i--)
+    {
+        if (i % 2 != 0)
+        {
+            odd +=  check.at(i).digitValue();
+        }else{
+            pair += check.at(i).digitValue();
+        }//end else
+    }//end for
+    temp = (odd*3) + pair ;
+    temp = (10 - (temp % 10)) % 10;
+    if(code == QString::number(temp)) boolReturned = true;
+    return boolReturned;
 }//end

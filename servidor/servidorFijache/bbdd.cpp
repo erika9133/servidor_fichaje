@@ -69,6 +69,32 @@ QVector<QString> BBDD::select(QMap< QString, QString> &values,const QString &sel
     return vectorReturned;
 }//end
 
+QString BBDD::simpleSelect(const QString &select)
+{
+    QString returned;
+    ///Only exec if everything is right
+    m_db.transaction();
+    QSqlQuery querySQL;
+    if(querySQL.exec())
+    {
+        while(querySQL.next())
+        {
+            if(querySQL.isValid())
+            {
+                returned = querySQL.value(0).toString();
+            }else{
+                 qDebug() << "Error. Query not valid";
+            }//end else valid
+        }//end while
+    }else{
+        qDebug() << "Error. Query not executed";
+    }//end else exec
+
+    ///Only exec if everything is right
+    m_db.commit();
+    return returned;
+}//end
+
 ///Insert a generic query to db
 bool BBDD::insert(QMap< QString, QString> &values,const QString &insert){
     bool boolReturned = false;
@@ -112,28 +138,4 @@ QSqlQuery BBDD::prepareBindValue(QMap<QString, QString> &values,const QString &s
     return queryReturned;
 }//end
 
-/*void BBDD::test()
-{
-    QStringList devolver;
-    connect();
-    m_db.transaction();
-    QSqlQuery query("SELECT usuarios_pass"
-           " FROM usuarios"
-           ";", m_db);
-
-    QString lastError = query.lastError().text().trimmed();
-    if (!lastError.isEmpty())
-    {
-    qDebug() << lastError;
-
-    }else{
-    while(query.next())
-    {
-        qDebug() << query.value(0).toString();
-         devolver.append(query.value(0).toString());
-    }
-    }
-    m_db.commit();
-    disconnect();
-}*/
 
